@@ -6,6 +6,7 @@ project(
   DESCRIPTION "Laboratory work about containers"
 )
 
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 

@@ -28,7 +28,7 @@ jobs:
 
       - name: Install conan package manager
         uses: conan-io/setup-conan@v1
-      - run: conan install . --output-folder=build --build=missing
+      - run: conan install . --output-folder=build --build=missing -s compiler.cppstd=20
       - run: source ./build/conanbuild.sh
 
       - name:

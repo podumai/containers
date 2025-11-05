@@ -22,6 +22,15 @@ jobs:
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }}"
       - run: echo "This job is running on ${{ runner.os }}"
+      - run: |
+          if [ "${{ inputs.os }}" == "ubuntu-latest" ]; then
+            echo "Upgrading g++ compiler to newest version"
+            apt-get update && apt-get upgrade -y
+          else
+            echo "Upgrading clang++ compiler to newest version"
+            brew update
+            yes | brew upgrade llvm
+          fi
 
       - uses: actions/checkout@v4
       - run: echo "The ${{ github.repository }} repository has been cloned to runner"

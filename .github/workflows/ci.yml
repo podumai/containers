@@ -34,8 +34,13 @@ jobs:
       - name:
         uses: threeal/cmake-action@v2.1.0
         with:
+          source-dir: .
+          build-dir: ./build
+          generator: Ninja Multi-Config
+          options: |
+            CMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
           run-build: false
-      - run: cmake -G "Ninja Multi-Config" -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+
       - run: cmake --build build --config Release
       
       - name: CMake test phase

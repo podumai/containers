@@ -1,0 +1,43 @@
+name: "[CI/CMake] Project configuration, build and testing"
+run-name: ${{ github.actor }} has done ${{ github.event_name }} to master branch
+on:
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      c_compiler:
+        required: true
+        type: string
+      cpp_compiler:
+        required: true
+        type: string
+
+jobs:
+  cmake:
+    runs-on: ${{ inputs.os }}
+    env:
+      CC: ${{ inputs.c_compiler }}
+      CXX: ${{ inputs.cpp_compiler }}
+    steps:
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }}"
+      - run: echo "This job is running on ${{ runner.os }}"
+
+      - uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to runner"
+
+      - name: Install conan package manager
+        uses: conan-io/setup-conan@v1
+      - run: conan install . --output-folder=build --build=missing
+      - run: source ./build/conanbuild.sh
+
+      - name:
+        uses: threeal/cmake-action@v2.1.0
+        with:
+          run-build: false
+      - run: cmake -G "Ninja Multi-Config" -S . -B ./build -DCMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
+      - run: cmake --build build --config Release
+      
+      - name: CMake test phase
+        run: ctest --test-dir ./build/tests/
+      - run: echo "Job status is ${{ job.status }}"

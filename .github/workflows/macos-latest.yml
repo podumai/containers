@@ -1,0 +1,16 @@
+name: macos-latest
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  macos-latest-build:
+    uses: ./.github/workflows/ci.yaml
+    with:
+      os: macos-latest
+      c_compiler: clang
+      cpp_compiler: clang++

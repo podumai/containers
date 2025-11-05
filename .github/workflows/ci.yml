@@ -16,23 +16,21 @@ on:
 jobs:
   cmake:
     runs-on: ${{ inputs.os }}
-    env:
-      CC: ${{ inputs.c_compiler }}
-      CXX: ${{ inputs.cpp_compiler }}
     steps:
       - run: echo "The job was automatically triggered by a ${{ github.event_name }}"
       - run: echo "This job is running on ${{ runner.os }}"
-      - run: |
-          if [ "${{ inputs.os }}" == "ubuntu-latest" ]; then
-            echo "Upgrading g++ compiler to newest version"
-            sudo apt-get update
-            sudo apt-get upgrade -y
-          else
-            echo "Upgrading clang++ compiler to newest version"
-            brew update
-            yes | brew install llvm
-            yes | brew upgrade
-          fi
+
+      - name: Upgrading C++ compiler
+        id: install_cc
+        uses: rlalik/setup-cpp-compiler@master
+        with:
+          compiler: ${{ inputs.c_compiler }}-latest
+
+      - name: Setup compiler environment variables
+          shell: bash
+          env:
+            CC: ${{ steps.install_cc.outputs.cc }}
+            CXX: ${{ steps.install_cc.outputs.cxx }}
 
       - uses: actions/checkout@v4
       - run: echo "The ${{ github.repository }} repository has been cloned to runner"

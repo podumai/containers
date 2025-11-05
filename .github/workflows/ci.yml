@@ -25,11 +25,13 @@ jobs:
       - run: |
           if [ "${{ inputs.os }}" == "ubuntu-latest" ]; then
             echo "Upgrading g++ compiler to newest version"
-            apt-get update && apt-get upgrade -y
+            sudo apt-get update
+            sudo apt-get upgrade -y
           else
             echo "Upgrading clang++ compiler to newest version"
             brew update
-            yes | brew upgrade llvm
+            yes | brew install llvm
+            yes | brew upgrade
           fi
 
       - uses: actions/checkout@v4

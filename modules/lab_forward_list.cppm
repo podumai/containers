@@ -281,7 +281,7 @@ class [[nodiscard]] ForwardList {
    *
    * @details This constructor ignores `allocator` and only deduces it's type.
    */
-  explicit ForwardList(
+  constexpr explicit ForwardList(
     std::initializer_list<ValueType> ilist,  //
     [[maybe_unused]] const Allocator& allocator = Allocator{}
   )

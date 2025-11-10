@@ -1,57 +1,46 @@
-name: "[CI/CMake] Project configuration, build and testing"
+name: "[CMake] Project configuration, build and testing"
 run-name: ${{ github.actor }} has done ${{ github.event_name }} to master branch
 on:
-  workflow_call:
-    inputs:
-      os:
-        required: true
-        type: string
-      c_compiler:
-        required: true
-        type: string
-      cpp_compiler:
-        required: true
-        type: string
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
-  cmake:
-    runs-on: ${{ inputs.os }}
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
     steps:
-      - run: echo "The job was automatically triggered by a ${{ github.event_name }}"
-      - run: echo "This job is running on ${{ runner.os }}"
+    - run: echo "Running on ${{ matrix.os }}"
+    - name: Cloning git repository
+      uses: actions/checkout@v4
 
-      - name: Upgrading C++ compiler
-        id: install_cc
-        uses: rlalik/setup-cpp-compiler@master
-        with:
-          compiler: ${{ inputs.c_compiler }}-latest
+    - name: Setup C++ compiler
+      uses: aminya/setup-cpp@v1
+      with:
+        compiler: llvm
+        cmake: true
+        conan: true
+        ninja: true
+    
+    - name: Setting compiler env variables for CMake
+      env:
+        CC: /usr/bin/clang
+        CXX: /usr/bin/clang++
+        CMAKE_GENERATOR: /usr/bin/ninja
 
-      - name: Setup compiler environment variables
-          shell: bash
-          env:
-            CC: ${{ steps.install_cc.outputs.cc }}
-            CXX: ${{ steps.install_cc.outputs.cxx }}
-
-      - uses: actions/checkout@v4
-      - run: echo "The ${{ github.repository }} repository has been cloned to runner"
-
-      - name: Install conan package manager
-        uses: conan-io/setup-conan@v1
-      - run: conan install . --output-folder=build --build=missing -s compiler.cppstd=20
-      - run: source ./build/conanbuild.sh
-
-      - name:
-        uses: threeal/cmake-action@v2.1.0
-        with:
-          source-dir: .
-          build-dir: ./build
-          generator: Ninja Multi-Config
-          options: |
-            CMAKE_TOOLCHAIN_FILE=./build/conan_toolchain.cmake
-          run-build: false
-
-      - run: cmake --build build --config Release
-      
-      - name: CMake test phase
-        run: ctest --test-dir ./build/tests/
-      - run: echo "Job status is ${{ job.status }}"
+    - run: conan profile detect --force
+    - run: conan install . --build=missing \
+                           --profile default \
+                           -s compiler.cppstd=14 \
+                           -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
+    - run: source ./build/generators/conanbuild.sh
+    - run: cmake --preset --conan-default
+    - run: cmake --build --preset conan-default
+    - run: source ./build/generators/conanrun.sh
+    - run: ctest --test-dir ./build/tests
+    - run: source ./build/generators/deactivate_conanrun.sh && \
+           source ./build/generators/deactivate_conanbuild.sh

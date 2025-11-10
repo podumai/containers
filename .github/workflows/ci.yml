@@ -9,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    env:
+      CC: /usr/bin/clang
+      CXX: /usr/bin/clang++
+      CMAKE_GENERATOR: /usr/bin/ninja
     strategy:
       fail-fast: false
       matrix:
@@ -25,12 +29,6 @@ jobs:
         cmake: true
         conan: true
         ninja: true
-    
-    - name: Setting compiler env variables for CMake
-      env:
-        CC: /usr/bin/clang
-        CXX: /usr/bin/clang++
-        CMAKE_GENERATOR: /usr/bin/ninja
 
     - run: conan profile detect --force
     - run: conan install . --build=missing \

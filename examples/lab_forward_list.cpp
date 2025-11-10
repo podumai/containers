@@ -1,5 +1,6 @@
 import lab_forward_list;
 
+#include <algorithm>
 #include <iterator>
 #include <print>
 #include <ranges>

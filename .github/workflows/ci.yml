@@ -31,9 +31,7 @@ jobs:
         ninja: true
 
     - run: conan profile detect --force
-    - run: conan install . --build=missing \
-                           -s compiler.cppstd=14 \
-                           -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
+    - run: conan install . --build=missing -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
     - run: source ./build/generators/conanbuild.sh
     - run: cmake --preset --conan-default
     - run: cmake --build --preset conan-default

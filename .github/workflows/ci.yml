@@ -37,5 +37,3 @@ jobs:
     - run: cmake --build --preset conan-release
     - run: source ./build/Release/generators/conanrun.sh
     - run: ctest --test-dir ./build/Release/tests
-    - run: source ./build/Release/generators/deactivate_conanrun.sh && \
-           source ./build/Release/generators/deactivate_conanbuild.sh

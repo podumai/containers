@@ -1,5 +1,6 @@
 import lab_forward_list;
 
+#include <algorithm>
 #include <array>
 #include <catch2/catch_test_macros.hpp>
 #include <initializer_list>

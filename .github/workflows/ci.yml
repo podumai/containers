@@ -31,10 +31,10 @@ jobs:
         ninja: true
 
     - run: conan profile detect --force
-    - run: conan install . --build=missing -c tools.cmake.cmaketoolchain:generator="Ninja Multi-Config"
+    - run: conan install . --build=missing
     - run: source ./build/generators/conanbuild.sh
-    - run: cmake --preset --conan-default
-    - run: cmake --build --preset conan-default
+    - run: cmake --preset conan-release
+    - run: cmake --build --preset conan-release
     - run: source ./build/generators/conanrun.sh
     - run: ctest --test-dir ./build/tests
     - run: source ./build/generators/deactivate_conanrun.sh && \

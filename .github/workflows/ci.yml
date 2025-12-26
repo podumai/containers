@@ -16,7 +16,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+        build_type: [ Release, Debug ]
+        conan_preset: [ conan-release, conan-debug ]
     steps:
     - run: echo "Running on ${{ matrix.os }}"
     - name: Cloning git repository
@@ -30,10 +32,22 @@ jobs:
         conan: true
         ninja: true
 
-    - run: conan profile detect --force
-    - run: conan install . --build=missing
-    - run: source ./build/Release/generators/conanbuild.sh
-    - run: cmake --preset conan-release
-    - run: cmake --build --preset conan-release
-    - run: source ./build/Release/generators/conanrun.sh
-    - run: ctest --test-dir ./build/Release/tests
+    - name: Setup conan profile
+      run: conan profile detect --force
+
+    - name: Install all required dependencies
+      run: conan install . -s:a build_type=${{ matrix.build_type }} -s:a compiler.cppstd=23 --build=missing
+
+    - name: CMake configuration phase (Ubuntu/macOS)
+      if: ${{ matrix.os != windows-latest }}
+      run: cmake --preset conan-release
+
+    - name: CMake configuration phase (Windows)
+      if: ${{ matrix.os == windows-latest }}
+      run: cmake --preset conan-default
+
+    - name: CMake build phase
+      run: cmake --build --preset ${{ matrix.conan_preset }}
+
+    - name: CMake test phase
+      run: ctest --preset ${{ matrix.conan_preset }}

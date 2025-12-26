@@ -7,6 +7,7 @@ class Containers(ConanFile):
 
     def requirements(self) -> None:
         self.requires("catch2/3.11.0")
+        self.requires("gtest/1.17.0")
 
     def generate(self) -> None:
         tc = CMakeToolchain(self)

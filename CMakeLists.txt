@@ -6,8 +6,7 @@ project(
   DESCRIPTION "Laboratory work about containers"
 )
 
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 
 set(DEFAULT_BUILD_TYPE "Release" CACHE INTERNAL "Default project build type")
@@ -46,6 +45,12 @@ if($ENV{DEV})
   endif()
 endif()
 
+find_package(GTest REQUIRED)
+include(GoogleTest)
+find_package(Catch2 3 REQUIRED)
+include(CTest)
+include(Catch)
+enable_testing()
+
 add_subdirectory(examples)
 add_subdirectory(tests)
-add_subdirectory(modules)

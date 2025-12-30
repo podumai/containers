@@ -1,58 +1,52 @@
-name: "[CMake] Project configuration, build and testing"
-run-name: ${{ github.actor }} has done ${{ github.event_name }} to master branch
+name: 'CI'
+run-name: '${{ github.actor }} has done ${{ github.event_name }} to master branch'
+
 on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+  workflow_call:
+    inputs:
+      os:
+        required: true
+        type: string
+      build_type:
+        required: true
+        type: string
+      configure_preset:
+        required: true
+        type: string
+      conan_preset:
+        required: true
+        type: string
+      compiler:
+        required: true
+        type: string
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    env:
-      CC: /usr/bin/clang
-      CXX: /usr/bin/clang++
-      CMAKE_GENERATOR: /usr/bin/ninja
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ ubuntu-24.04, ubuntu-22.04, macos-15-large, macos-15-xlarge, windows-2025, windows-2022 ]
-        build_type: [ Release, Debug ]
-        conan_preset: [ conan-release, conan-debug ]
-        exclude:
-          - build_type: Release
-            conan_preset: conan-debug
-          - build_type: Debug
-            conan_preset: conan-release
+    runs-on: ${{ inputs.os }}
     steps:
-    - run: echo "Running on ${{ matrix.os }}"
-    - name: Cloning git repository
-      uses: actions/checkout@v4
+      - run: echo "The job was automatically triggered by a ${{ github.event_name }} event"
 
-    - name: Setup C++ compiler
-      uses: aminya/setup-cpp@v1
-      with:
-        compiler: llvm
-        cmake: true
-        conan: true
-        ninja: true
+      - name: 'Cloning git repository'
+        uses: 'actions/checkout@v4'
 
-    - name: Setup conan profile
-      run: conan profile detect --force
-
-    - name: Install all required dependencies
-      run: conan install . -s:a build_type=${{ matrix.build_type }} -s:a compiler.cppstd=23 --build=missing
-
-    - name: CMake configuration phase (Ubuntu/macOS)
-      if: startsWith(${{ matrix.os }}, 'windows') == false
-      run: cmake --preset ${{ matrix.conan_preset }}
-
-    - name: CMake configuration phase (Windows)
-      if: startsWith(${{ matrix.os }}, 'windows') == true
-      run: cmake --preset conan-default
-
-    - name: CMake build phase
-      run: cmake --build --preset ${{ matrix.conan_preset }}
-
-    - name: CMake test phase
-      run: ctest --preset ${{ matrix.conan_preset }}
+      - name: 'Setup C++ infrastructure'
+        run: 'aminya/setup-cpp@v1'
+        with:
+          compiler: ${{ inputs.compiler }}
+          cmake: true
+          conan: true
+      
+      - name: 'Setup default conan profile'
+        run: conan profile detect --force
+      
+      - name: 'Install project dependencies'
+        run: conan install . -s:a build_type=${{ inputs.build_type }} -s:a compiler.cppstd=23 --build=missing
+      
+      - name: 'CMake configuration phase'
+        run: cmake --preset ${{ inputs.configure_preset }}
+      
+      - name: 'CMake build phase'
+        run: cmake --build --preset ${{ inputs.conan_preset }}
+      
+      - name: 'CMake test phase'
+        run: ctest --preset ${{ inputs.conan_preset }}

@@ -1,7 +1,9 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <array>
 #include <lab/containers/vector.hpp>
+#include <memory_resource>
 #include <ranges>
 
 constexpr auto kTestNumbers = {1, 2, 3, 4, 5};
@@ -895,5 +897,216 @@ TEST(Vector, ShrinkToFit) {
     filled_vector.ShrinkToFit();
     EXPECT_EQ(filled_vector.Size(), previous_size);
     EXPECT_EQ(filled_vector.Capacity(), previous_capacity);
+  }
+}
+
+TEST(Vector, EmplaceFront) {
+  constexpr auto kEmplaceValue = int{-1};
+  {
+    auto empty_vector = lab::containers::Vector<int>{};
+    const auto previous_capacity = empty_vector.Capacity();
+    empty_vector.Emplace(empty_vector.cbegin(), kEmplaceValue);
+    EXPECT_EQ(empty_vector.Size(), 1);
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    const auto result = empty_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kEmplaceValue);
+    } else {
+      FAIL();
+    }
+  }
+  {
+    auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+    const auto previous_size = filled_vector.Size();
+    const auto previous_capacity = filled_vector.Capacity();
+    filled_vector.Emplace(filled_vector.cbegin(), kEmplaceValue);
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1);
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    const auto result = filled_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kEmplaceValue);
+    } else {
+      FAIL();
+    }
+  }
+}
+
+TEST(Vector, EmplaceMiddle) {
+  constexpr auto kEmplaceValue = int{50};
+  auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+  const auto previous_size = filled_vector.Size();
+  const auto previous_capacity = filled_vector.Capacity();
+  auto emplace_position = filled_vector.cbegin() + (filled_vector.Size() >> 1);
+  filled_vector.Emplace(emplace_position, kEmplaceValue);
+  EXPECT_EQ(filled_vector.Size(), previous_size + 1);
+  EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+  const auto result = filled_vector.At(previous_size >> 1);
+  if (result) {
+    EXPECT_EQ(result.value().get(), kEmplaceValue);
+  } else {
+    FAIL();
+  }
+}
+
+TEST(Vector, EmplaceEnd) {
+  constexpr auto kEmplaceValue = int{100};
+  {
+    auto empty_vector = lab::containers::Vector<int>{};
+    const auto previous_capacity = empty_vector.Capacity();
+    empty_vector.Emplace(empty_vector.cend(), kEmplaceValue);
+    EXPECT_EQ(empty_vector.Size(), 1);
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    const auto result = empty_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kEmplaceValue);
+    } else {
+      FAIL();
+    }
+  }
+  {
+    auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+    const auto previous_capacity = filled_vector.Capacity();
+    filled_vector.Emplace(filled_vector.cend(), kEmplaceValue);
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    const auto result = filled_vector.Back();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kEmplaceValue);
+    } else {
+      FAIL();
+    }
+  }
+}
+
+TEST(Vector, InsertFront) {
+  constexpr auto kInsertValue = int{100};
+  {
+    auto empty_vector = lab::containers::Vector<int>{};
+    const auto previous_capacity = empty_vector.Capacity();
+    empty_vector.Insert(empty_vector.cbegin(), kInsertValue);
+    EXPECT_EQ(empty_vector.Size(), 1);
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    const auto result = empty_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kInsertValue);
+    } else {
+      FAIL();
+    }
+  }
+  {
+    auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+    const auto previous_size = filled_vector.Size();
+    const auto previous_capacity = filled_vector.Capacity();
+    filled_vector.Insert(filled_vector.cbegin(), kInsertValue);
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1);
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    const auto result = filled_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kInsertValue);
+    } else {
+      FAIL();
+    }
+  }
+}
+
+TEST(Vector, InsertMiddle) {
+  constexpr auto kInsertValue = int{20};
+  auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+  const auto previous_size = filled_vector.Size();
+  const auto previous_capacity = filled_vector.Capacity();
+  auto insert_position = filled_vector.cbegin() + (filled_vector.Size() >> 1);
+  filled_vector.Insert(insert_position, kInsertValue);
+  EXPECT_EQ(filled_vector.Size(), previous_size + 1);
+  EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+  const auto result = filled_vector.At(previous_size >> 1);
+  if (result) {
+    EXPECT_EQ(result.value().get(), kInsertValue);
+  } else {
+    FAIL();
+  }
+}
+
+TEST(Vector, InsertEnd) {
+  constexpr auto kInsertValue = int{-1};
+  {
+    auto empty_vector = lab::containers::Vector<int>{};
+    const auto previous_capacity = empty_vector.Capacity();
+    empty_vector.Insert(empty_vector.cend(), kInsertValue);
+    EXPECT_EQ(empty_vector.Size(), 1);
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    const auto result = empty_vector.Front();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kInsertValue);
+    } else {
+      FAIL();
+    }
+  }
+  {
+    auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+    const auto previous_size = filled_vector.Size();
+    const auto previous_capacity = filled_vector.Capacity();
+    filled_vector.Insert(filled_vector.cend(), kInsertValue);
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1);
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    const auto result = filled_vector.Back();
+    if (result) {
+      EXPECT_EQ(result.value().get(), kInsertValue);
+    } else {
+      FAIL();
+    }
+  }
+}
+
+TEST(Vector, Swap) {
+  auto empty_vector = lab::containers::Vector<int>{};
+  auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
+
+  const auto previous_empty_data = empty_vector.Data();
+  const auto previous_empty_size = empty_vector.Size();
+  const auto previous_empty_capacity = empty_vector.Capacity();
+
+  const auto previous_filled_data = filled_vector.Data();
+  const auto previous_filled_size = filled_vector.Size();
+  const auto previous_filled_capacity = filled_vector.Capacity();
+
+  empty_vector.Swap(filled_vector);
+
+  EXPECT_EQ(empty_vector.Data(), previous_filled_data);
+  EXPECT_EQ(empty_vector.Size(), previous_filled_size);
+  EXPECT_EQ(empty_vector.Capacity(), previous_filled_capacity);
+
+  EXPECT_EQ(filled_vector.Data(), previous_empty_data);
+  EXPECT_EQ(filled_vector.Size(), previous_empty_size);
+  EXPECT_EQ(filled_vector.Capacity(), previous_empty_capacity);
+
+  if constexpr (std::allocator_traits<
+                  typename lab::containers::Vector<int>::AllocatorType>::propagate_on_container_swap::value) {
+    EXPECT_EQ(empty_vector.GetAllocator(), filled_vector.GetAllocator());
+  }
+}
+
+TEST(Vector, CustomAllocator) {
+  constexpr auto kTestValue = int{100};
+
+  auto buffer = std::array<unsigned char, 1000>{};
+  auto monotonic_resource =
+    std::pmr::monotonic_buffer_resource{buffer.data(), buffer.size(), std::pmr::null_memory_resource()};
+  auto allocator = std::pmr::polymorphic_allocator<int>{&monotonic_resource};
+  auto test_vector = lab::containers::Vector<int, decltype(allocator)>{allocator};
+
+  const auto previous_capacity = test_vector.Capacity();
+
+  try {
+    test_vector.PushBack(kTestValue);
+  } catch (...) {
+    FAIL();
+  }
+
+  EXPECT_EQ(test_vector.Size(), 1);
+  EXPECT_NE(test_vector.Capacity(), previous_capacity);
+  const auto result = test_vector.Front();
+  if (result) {
+    EXPECT_EQ(result.value().get(), kTestValue);
+  } else {
+    FAIL();
   }
 }

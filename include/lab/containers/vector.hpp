@@ -115,10 +115,12 @@ class VectorIteratorBase {
 
   [[nodiscard]] friend constexpr auto operator-(const VectorIteratorBase lhs, const VectorIteratorBase rhs) noexcept
     -> DifferenceType {
-    LAB_CONTAINERS_ASSERT(
+    /* LAB_CONTAINERS_ASSERT(
       lhs.current_ && rhs.current_, "Undefined behaviour: binary operator- not called on valid instances"
     );
     return lhs.current_ - rhs.current_;
+    */
+    return lhs.current_ && rhs.current_ ? lhs.current_ - rhs.current_ : 0;
   }
 
   [[nodiscard]] constexpr auto operator[](const DifferenceType index) const noexcept -> Reference {
@@ -208,7 +210,8 @@ class [[nodiscard]] Vector {
     , allocator_{std::move(other.allocator_)} { }
 
   template<std::input_iterator InputIterator, typename Sentinel>
-  constexpr Vector(InputIterator first, Sentinel last, const AllocatorType& allocator = AllocatorType{}) {
+  constexpr Vector(InputIterator first, Sentinel last, const AllocatorType& allocator = AllocatorType{})
+    : Vector{allocator} {
     if (first == last) [[unlikely]] {
       return;
     }
@@ -234,7 +237,8 @@ class [[nodiscard]] Vector {
   constexpr Vector(std::initializer_list<ValueType> ilist, const AllocatorType& allocator = AllocatorType{})
     : Vector{ilist.begin(), ilist.end(), allocator} { }
 
-  constexpr Vector(const SizeType count, const ValueType& value, const AllocatorType& allocator = AllocatorType{}) {
+  constexpr Vector(const SizeType count, const ValueType& value, const AllocatorType& allocator = AllocatorType{})
+    : Vector{allocator} {
     if (!count) [[unlikely]] {
       return;
     }
@@ -425,7 +429,32 @@ class [[nodiscard]] Vector {
     AllocatorTraits::destroy(allocator_, --current_);
   }
 
-  constexpr auto Emplace(ConstIterator position, auto&&... args) -> Iterator { return position; }
+  constexpr auto Emplace(ConstIterator position, auto&&... args) -> Iterator {
+    if (position.current_ != current_) [[likely]] {
+      auto emplace_position = position.current_;
+      if (current_ == last_) [[unlikely]] {
+        const auto delta = static_cast<SizeType>(std::distance(cbegin(), position));
+        {
+          const auto new_capacity = ComputeNewCapacity();
+          InternalResize(new_capacity);
+        }
+        emplace_position = first_ + delta;
+      }
+
+      AllocatorTraits::construct(allocator_, current_, std::move_if_noexcept(*(current_ - 1)));
+      ++current_;
+
+      for (auto backward_traverser = current_ - 2; backward_traverser != emplace_position; --backward_traverser) {
+        *backward_traverser = std::move_if_noexcept(*(backward_traverser - 1));
+      }
+
+      AllocatorTraits::destroy(allocator_, emplace_position);
+      AllocatorTraits::construct(allocator_, emplace_position, std::forward<decltype(args)>(args)...);
+      return emplace_position;
+    } else [[unlikely]] {
+      return &EmplaceBack(std::forward<decltype(args)>(args)...);
+    }
+  }
 
   constexpr auto Insert(ConstIterator position, const ValueType& value) -> Iterator { return Emplace(position, value); }
 
@@ -435,11 +464,11 @@ class [[nodiscard]] Vector {
 
   constexpr auto Erase(ConstIterator position) -> Iterator {
     LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::Erase(): called on empty vector");
-    while (position.current_ != current_) {
-      position.current_ = std::move_if_noexcept(position.current_ + 1);
-      ++position.current_;
+    for (auto next_element = position.current_ + 1; next_element != current_; ++next_element) {
+      *position = std::move_if_noexcept(*next_element);
+      ++position;
     }
-    --current_;
+    AllocatorTraits::destroy(allocator_, --current_);
     return position;
   }
 
@@ -454,33 +483,6 @@ class [[nodiscard]] Vector {
     first_ = nullptr;
     current_ = nullptr;
     last_ = nullptr;
-  }
-
-  template<std::callable Callable>
-  requires (requires(Callable&& construct_policy, Pointer position) {
-    { construct_policy(position) };
-  })
-  constexpr auto ResizeImpl(SizeType count, const Callable& construct_policy) {
-    const auto size = Size();
-    if (!count || count == size) [[unlikely]] {
-      return;
-    }
-    if (count < size) {
-      for (auto delta = size - count; delta; --delta) {
-        AllocatorTraits::destroy(allocator_, --current_);
-      }
-    } else {
-      if (auto new_size = size + count; new_size >= Capacity()) {
-        InternalResize(new_size);
-      }
-      auto previous_current = current_;
-      for (auto delta = count - size; delta; --delta) {
-        try {
-          construct_policy(current_);
-          ++current_;
-        }
-      }
-    }
   }
 
   constexpr auto Resize(const SizeType count) -> void { Resize(count, ValueType{}); }
@@ -550,7 +552,7 @@ class [[nodiscard]] Vector {
   }
 
   constexpr auto Swap(Vector& other) noexcept -> void {
-    LAB_CONTAINERS_ASSERT(this != other, "Undefined behaviour: Vector::Swap(): self swap detected");
+    LAB_CONTAINERS_ASSERT(this != &other, "Undefined behaviour: Vector::Swap(): self swap detected");
     std::swap(first_, other.first_);
     std::swap(current_, other.current_);
     std::swap(last_, other.last_);

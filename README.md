@@ -1,10 +1,20 @@
 # Containers
 
+| Platform/CI |
+| --- |
+| [![ubuntu-22.04](https://github.com/podumai/containers/actions/workflows/ubuntu-22.04.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/ubuntu-22.04.yml) |  
+| [![ubuntu-24.04](https://github.com/podumai/containers/actions/workflows/ubuntu-24.04.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/ubuntu-24.04.yml) |  
+| [![macOS-14](https://github.com/podumai/containers/actions/workflows/macos-14.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/macos-14.yml) |  
+| [![macOS-15](https://github.com/podumai/containers/actions/workflows/macos-15.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/macos-15.yml) |  
+| [![windows-2022](https://github.com/podumai/containers/actions/workflows/windows-2022.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/windows-2022.yml) |  
+| [![windows-2025](https://github.com/podumai/containers/actions/workflows/windows-2025.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/windows-2025.yml) |
+
 ## Tasks
 
 1. Implement two dynamically sized containers—a sequential and a list-type container—and user code demonstrating the capabilities of these containers.
-  * A distinctive feature of a sequential container is the arrangement of its elements one after another (like a regular C-style array).
-  * A list-type container does not guarantee the arrangement of its elements in memory. Communication between elements is achieved through pointers (a pointer to the previous element and/or a pointer to the next element).
+
+* A distinctive feature of a sequential container is the arrangement of its elements one after another (like a regular C-style array).
+* A list-type container does not guarantee the arrangement of its elements in memory. Communication between elements is achieved through pointers (a pointer to the previous element and/or a pointer to the next element).
 
   The user code (called from the main function) must contain the following set of actions with both containers:
 
@@ -23,34 +33,34 @@
 
   Minimum interface requirements:
 
-    * Method(s) (may be multiple) for adding elements to the end of the container ( push_back ).
-    * Method(s) for inserting elements at an arbitrary position ( insert ).
-    * Method(s) for removing elements from the container ( erase ).
-    * Method(s) for getting the current size of the container ( size ).
-    * Method(s) for accessing by index ( operator[] ).
+  * Method(s) (may be multiple) for adding elements to the end of the container ( push_back ).
+  * Method(s) for inserting elements at an arbitrary position ( insert ).
+  * Method(s) for removing elements from the container ( erase ).
+  * Method(s) for getting the current size of the container ( size ).
+  * Method(s) for accessing by index ( operator[] ).
 
     It is permissible to add other helper methods with custom code demonstrating their purpose.
 
-2. Implement a sequential container with a small memory reservation upfront. Thus, when adding a new element, the container first creates a memory area larger than the required size to accommodate the elements (e.g., 50%). This way, subsequent additions of new elements can avoid re-allocating memory and copying. Note: Allocating memory too much is a bad idea, as it will lead to significant memory overhead. Typically, factors of 1.5, 1.6, and 2.0 are used.
+1. Implement a sequential container with a small memory reservation upfront. Thus, when adding a new element, the container first creates a memory area larger than the required size to accommodate the elements (e.g., 50%). This way, subsequent additions of new elements can avoid re-allocating memory and copying. Note: Allocating memory too much is a bad idea, as it will lead to significant memory overhead. Typically, factors of 1.5, 1.6, and 2.0 are used.
 
-3. Implement two variants of a list container:
+1. Implement two variants of a list container:
 
-  * Doubly linked list – each node stores a pointer to the next element and a pointer to the previous element.
-  * Singly linked list – each node stores a pointer to the next element only.
+* Doubly linked list – each node stores a pointer to the next element and a pointer to the previous element.
+* Singly linked list – each node stores a pointer to the next element only.
 
-4. Use move semantics in the implementation:
+1. Use move semantics in the implementation:
 
-  * Implement a move constructor and assignment operator for containers.
-  * Accept an r-value reference to a user-defined object as input.
+* Implement a move constructor and assignment operator for containers.
+* Accept an r-value reference to a user-defined object as input.
 
-5. Implement an additional structure – an iterator – that encapsulates the logic for traversing the container. Implement the following methods on the container:
+1. Implement an additional structure – an iterator – that encapsulates the logic for traversing the container. Implement the following methods on the container:
 
-  * begin() – returns an iterator to the beginning of the container
-  * end() – returns an iterator to the end of the container
+* begin() – returns an iterator to the beginning of the container
+* end() – returns an iterator to the end of the container
 
   Implement the following methods on the iterator:
 
-    * operator*() – unary dereference operator
-    * and/or the get() method to retrieve the value.
+  * operator*() – unary dereference operator
+  * and/or the get() method to retrieve the value.
 
-6. Build releases in the repository using CI/CD for at least two operating systems per commit.
+1. Build releases in the repository using CI/CD for at least two operating systems per commit.

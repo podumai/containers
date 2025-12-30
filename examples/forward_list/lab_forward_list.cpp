@@ -9,7 +9,7 @@ namespace lab::utility {
 auto GenerateRange(lab::containers::ForwardList<int>& list) -> void {
   auto current_position = std::ranges::cbegin(list);
   for (const auto value : std::views::iota(0, 10)) {
-    const auto inserted_position{list.InsertAfter(current_position, value)};
+    const auto inserted_position = list.InsertAfter(current_position, value);
     current_position = inserted_position;
   }
 }

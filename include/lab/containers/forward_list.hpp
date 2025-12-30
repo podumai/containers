@@ -4,12 +4,11 @@
 #include <concepts>
 #include <expected>
 #include <iterator>
+#include <lab/containers/assert.hpp>
 #include <memory>
 #include <ranges>
 #include <type_traits>
 #include <utility>
-
-#include "assert.hpp"
 
 namespace lab::containers {
 

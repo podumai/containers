@@ -6,12 +6,11 @@
 #include <functional>
 #include <initializer_list>
 #include <iterator>
+#include <lab/containers/assert.hpp>
 #include <limits>
 #include <memory>
 #include <type_traits>
 #include <utility>
-
-#include "assert.hpp"
 
 namespace lab::containers {
 
@@ -144,7 +143,7 @@ class [[nodiscard]] ListIteratorBase {
 };
 
 template<typename ListIterator>
-class [[nodiscard]] ListReverseIteratorAdaptor final : public ListIterator {
+class [[nodiscard]] ListReverseIterator final : public ListIterator {
   using Base = ListIterator;
 
  public:
@@ -161,34 +160,34 @@ class [[nodiscard]] ListReverseIteratorAdaptor final : public ListIterator {
 
   using ListIterator::ListIterator;
 
-  constexpr auto operator++() noexcept -> ListReverseIteratorAdaptor& {
+  constexpr auto operator++() noexcept -> ListReverseIterator& {
     LAB_CONTAINERS_ASSERT(
-      *this != ListSentinel{}, "Undefined behaviour: ListReverseIteratorAdaptor::operator++(): out of range"
+      *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator++(): out of range"
     );
     Base::operator--();
     return *this;
   }
 
-  constexpr auto operator++(int) noexcept -> ListReverseIteratorAdaptor {
+  constexpr auto operator++(int) noexcept -> ListReverseIterator {
     LAB_CONTAINERS_ASSERT(
-      *this != ListSentinel{}, "Undefined behaviour: ListReverseIteratorAdaptor::operator++(int): out of range"
+      *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator++(int): out of range"
     );
     auto previous = *this;
     Base::operator--();
     return previous;
   }
 
-  constexpr auto operator--() noexcept -> ListReverseIteratorAdaptor& {
+  constexpr auto operator--() noexcept -> ListReverseIterator& {
     LAB_CONTAINERS_ASSERT(
-      *this != ListSentinel{}, "Undefined behaviour: ListReverseIteratorAdaptor::operator--(): out of range"
+      *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator--(): out of range"
     );
     Base::operator++();
     return *this;
   }
 
-  constexpr auto operator--(int) noexcept -> ListReverseIteratorAdaptor {
+  constexpr auto operator--(int) noexcept -> ListReverseIterator {
     LAB_CONTAINERS_ASSERT(
-      *this != ListSentinel{}, "Undefined behaviour: ListReverseIteratorAdaptor::operator--(int): out of range"
+      *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator--(int): out of range"
     );
     auto previous = *this;
     Base::operator++();
@@ -228,9 +227,9 @@ class [[nodiscard]] List final {
   using Iterator = iterator;
   using const_iterator = ListIteratorBase<true, List>;
   using ConstIterator = const_iterator;
-  using reverse_iterator = ListReverseIteratorAdaptor<Iterator>;
+  using reverse_iterator = ListReverseIterator<Iterator>;
   using ReverseIterator = reverse_iterator;
-  using const_reverse_iterator = ListReverseIteratorAdaptor<ConstIterator>;
+  using const_reverse_iterator = ListReverseIterator<ConstIterator>;
   using ConstReverseIterator = const_reverse_iterator;
 
   constexpr List() = default;
@@ -601,7 +600,7 @@ class [[nodiscard]] List final {
    * @param[in] position
    * @param[in] value
    */
-  constexpr auto Insert(ConstIterator position, const ValueType& value) -> void { Emplace(position, value); }
+  constexpr auto Insert(ConstIterator position, const ValueType& value) -> Iterator { return Emplace(position, value); }
 
   /**
    * @public
@@ -609,7 +608,9 @@ class [[nodiscard]] List final {
    * @param[in] position
    * @param[in] value
    */
-  constexpr auto Insert(ConstIterator position, ValueType&& value) -> void { Emplace(position, std::move(value)); }
+  constexpr auto Insert(ConstIterator position, ValueType&& value) -> Iterator {
+    return Emplace(position, std::move(value));
+  }
 
   /**
    * @public
@@ -623,14 +624,32 @@ class [[nodiscard]] List final {
     LAB_CONTAINERS_ASSERT(IteratorRangeCheck(position), "Undefined behaviour: List::Emplace(): iterator not in range");
 #endif
     auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
-    if (proxy_node_->head_) [[likely]] {
-      list_node->next_ = position.current_;
-      list_node->prev_ = position.current_->prev_;
-      position.current_->prev_ = list_node;
+    if (position.current_) [[likely]] {
+      if (proxy_node_->head_ == position.current_) [[unlikely]] {
+        list_node->next_ = proxy_node_->head_;
+        proxy_node_->head_->prev_ = list_node;
+        proxy_node_->head_ = list_node;
+      } else if (proxy_node_->tail_ == position.current_) [[unlikely]] {
+        list_node->prev_ = proxy_node_->tail_;
+        proxy_node_->tail_->next_ = list_node;
+        proxy_node_->tail_ = list_node;
+      } else [[likely]] {
+        list_node->next_ = position.current_;
+        list_node->prev_ = position.current_->prev_;
+        position.current_->prev_->next_ = list_node;
+        position.current_->prev_ = list_node;
+      }
     } else [[unlikely]] {
-      proxy_node_->head_ = list_node;
-      proxy_node_->tail_ = list_node;
+      if (proxy_node_->head_) [[likely]] {
+        list_node->prev_ = proxy_node_->tail_;
+        proxy_node_->tail_->next_ = list_node;
+        proxy_node_->tail_ = list_node;
+      } else [[unlikely]] {
+        proxy_node_->head_ = list_node;
+        proxy_node_->tail_ = list_node;
+      }
     }
+    return list_node;
   }
 
   /**

@@ -9,6 +9,7 @@
 #include <lab/containers/assert.hpp>
 #include <memory>
 #include <type_traits>
+#include <utility>
 
 namespace lab::containers {
 
@@ -81,11 +82,10 @@ class VectorIteratorBase {
     return previous;
   }
 
-  friend constexpr auto operator+=(VectorIteratorBase& iterator, const DifferenceType offset) noexcept
-    -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(iterator.current_, "Undefined behaviour: binary operator+= called on invalid instance");
-    iterator.current_ += offset;
-    return iterator;
+  constexpr auto operator+=(const DifferenceType offset) noexcept -> VectorIteratorBase& {
+    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: binary operator+= called on invalid instance");
+    current_ += offset;
+    return *this;
   }
 
   [[nodiscard]] friend constexpr auto operator+(const VectorIteratorBase iterator, const DifferenceType offset) noexcept
@@ -115,11 +115,6 @@ class VectorIteratorBase {
 
   [[nodiscard]] friend constexpr auto operator-(const VectorIteratorBase lhs, const VectorIteratorBase rhs) noexcept
     -> DifferenceType {
-    /* LAB_CONTAINERS_ASSERT(
-      lhs.current_ && rhs.current_, "Undefined behaviour: binary operator- not called on valid instances"
-    );
-    return lhs.current_ - rhs.current_;
-    */
     return lhs.current_ && rhs.current_ ? lhs.current_ - rhs.current_ : 0;
   }
 
@@ -169,6 +164,8 @@ enum struct VectorErrors : unsigned char { kUnknown, kEmpty, kOutOfRange };
 template<details::IsValidVectorType T, typename Allocator = std::allocator<T>>
 class [[nodiscard]] Vector {
   using AllocatorTraits = std::allocator_traits<Allocator>;
+  friend class VectorIteratorBase<false, Vector>;
+  friend class VectorIteratorBase<true, Vector>;
 
  public:
   using value_type = T;
@@ -465,7 +462,7 @@ class [[nodiscard]] Vector {
   constexpr auto Erase(ConstIterator position) -> Iterator {
     LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::Erase(): called on empty vector");
     for (auto next_element = position.current_ + 1; next_element != current_; ++next_element) {
-      *position = std::move_if_noexcept(*next_element);
+      *position.current_ = std::move_if_noexcept(*next_element);
       ++position;
     }
     AllocatorTraits::destroy(allocator_, --current_);

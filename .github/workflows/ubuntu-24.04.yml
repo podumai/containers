@@ -1,4 +1,4 @@
-name: 'ubuntu-24.04 CI'
+name: 'ubuntu-24.04'
 on:
   push:
     branches: [ 'master' ]
@@ -8,6 +8,7 @@ on:
 jobs:
   ubuntu-build:
     strategy:
+      fail-fast: false
       matrix:
         build_type: [ 'Release', 'Debug' ]
         conan_preset: [ 'conan-release', 'conan-debug' ]

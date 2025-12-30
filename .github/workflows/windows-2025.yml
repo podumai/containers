@@ -1,4 +1,4 @@
-name: 'windows-2025 CI'
+name: 'windows-2025'
 on:
   push:
     branches: [ 'master' ]
@@ -8,6 +8,7 @@ on:
 jobs:
   windows-build:
     strategy:
+      fail-fast: false
       matrix:
         build_type: [ 'Release', 'Debug' ]
         conan_preset: [ 'conan-release', 'conan-debug' ]

@@ -1,4 +1,4 @@
-name: 'macOS-15 CI'
+name: 'macOS-15'
 on:
   push:
     branches: [ 'master' ]
@@ -8,6 +8,7 @@ on:
 jobs:
   macos-build:
     strategy:
+      fail-fast: false
       matrix:
         build_type: [ 'Release', 'Debug' ]
         conan_preset: [ 'conan-release', 'conan-debug' ]

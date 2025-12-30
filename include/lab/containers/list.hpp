@@ -232,9 +232,9 @@ class [[nodiscard]] List final {
   using const_reverse_iterator = ListReverseIterator<ConstIterator>;
   using ConstReverseIterator = const_reverse_iterator;
 
-  constexpr List() = default;
+  constexpr List() noexcept = default;
 
-  constexpr explicit List(const Allocator& allocator = Allocator{}) : allocator_{allocator} { }
+  constexpr explicit List(const Allocator& allocator) noexcept : allocator_{allocator} { }
 
   constexpr List(const List& other)
     : List{other.cbegin(), other.cend(), AllocatorTraits::select_on_container_copy_construction(other.allocator_)} { }

@@ -1060,11 +1060,11 @@ TEST(Vector, Swap) {
   auto empty_vector = lab::containers::Vector<int>{};
   auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
 
-  const auto previous_empty_data = empty_vector.Data();
+  const auto* const previous_empty_data = empty_vector.Data();
   const auto previous_empty_size = empty_vector.Size();
   const auto previous_empty_capacity = empty_vector.Capacity();
 
-  const auto previous_filled_data = filled_vector.Data();
+  const auto* const previous_filled_data = filled_vector.Data();
   const auto previous_filled_size = filled_vector.Size();
   const auto previous_filled_capacity = filled_vector.Capacity();
 

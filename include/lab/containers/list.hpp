@@ -86,7 +86,7 @@ class [[nodiscard]] ListIteratorBase {
 
   constexpr auto operator++(int) noexcept -> ListIteratorBase {
     LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator++(int): nullptr dereference");
-    auto previous = *this;
+    ListIteratorBase previous{*this};
     current_ = current_->next_;
     return previous;
   }
@@ -99,7 +99,7 @@ class [[nodiscard]] ListIteratorBase {
 
   constexpr auto operator--(int) noexcept -> ListIteratorBase {
     LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator--(int): nullptr dereference");
-    auto previous = *this;
+    ListIteratorBase previous{*this};
     current_ = current_->prev_;
     return previous;
   }
@@ -172,7 +172,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
     LAB_CONTAINERS_ASSERT(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator++(int): out of range"
     );
-    auto previous = *this;
+    ListReverseIterator previous{*this};
     Base::operator--();
     return previous;
   }
@@ -189,7 +189,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
     LAB_CONTAINERS_ASSERT(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator--(int): out of range"
     );
-    auto previous = *this;
+    ListReverseIterator previous{*this};
     Base::operator++();
     return previous;
   }
@@ -205,6 +205,7 @@ class [[nodiscard]] List final {
   using InternalAllocatorType = std::allocator_traits<Allocator>::template rebind_alloc<details::ListNode<T>>;
   using AllocatorTraits = std::allocator_traits<InternalAllocatorType>;
   using NodeType = details::ListNode<T>;
+  using NodePointer = NodeType*;
 
  public:
   using value_type = T;
@@ -245,14 +246,8 @@ class [[nodiscard]] List final {
     , allocator_{std::move(other.allocator_)} { }
 
  private:
-  /**
-   * @private
-   * @internal
-   *
-   * @param[in] args
-   */
-  [[nodiscard]] constexpr auto ConstructNode(auto&&... args) -> NodeType* {
-    auto list_node = AllocatorTraits::allocate(allocator_, 1);
+  [[nodiscard]] constexpr auto ConstructNode(auto&&... args) -> NodePointer {
+    NodePointer list_node{AllocatorTraits::allocate(allocator_, 1)};
     if constexpr (std::is_nothrow_constructible_v<ValueType, decltype(args)...>) {
       AllocatorTraits::construct(allocator_, list_node, std::forward<decltype(args)>(args)...);
     } else {
@@ -267,27 +262,17 @@ class [[nodiscard]] List final {
   }
 
  public:
-  /**
-   * @public
-   *
-   * @tparam InputIter
-   * @tparam Sentinel
-   *
-   * @param[in] first
-   * @param[in] last
-   * @param[in] allocator
-   */
   template<std::input_iterator InputIterator, typename Sentinel>
   constexpr List(InputIterator first, Sentinel last, const Allocator& allocator = Allocator{}) : List{allocator} {
     if (first == last) [[unlikely]] {
       return;
     }
     proxy_node_->head_ = ConstructNode(*first++);
-    auto traverser = proxy_node_->head_;
+    NodePointer traverser{proxy_node_->head_};
     size_ = 1;
     while (first != last) {
       try {
-        auto list_node = ConstructNode(*first++);
+        NodePointer list_node{ConstructNode(*first++)};
         traverser->next_ = list_node;
         list_node->prev_ = traverser;
         traverser = traverser->next_;
@@ -300,12 +285,6 @@ class [[nodiscard]] List final {
     proxy_node_->tail_ = traverser;
   }
 
-  /**
-   * @public
-   *
-   * @param[in] ilist
-   * @param[in] allocator
-   */
   constexpr explicit List(std::initializer_list<ValueType> ilist, const Allocator& allocator = Allocator{})
     : List{ilist.begin(), ilist.end(), allocator} { }
 
@@ -328,28 +307,13 @@ class [[nodiscard]] List final {
     return *this;
   }
 
-  /**
-   * @public
-   *
-   * @param[in] value
-   */
   constexpr auto PushFront(const ValueType& value) -> void { EmplaceFront(value); }
 
-  /**
-   * @public
-   *
-   * @param[in] value
-   */
   constexpr auto PushFront(ValueType&& value) -> void { EmplaceFront(std::move(value)); }
 
-  /**
-   * @public
-   *
-   * @param[in] args
-   */
   constexpr auto EmplaceFront(auto&&... args) -> void {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::EmplaceFront(): called on list in moved-from state");
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (proxy_node_->head_) [[likely]] {
       list_node->next_ = proxy_node_->head_;
       proxy_node_->head_->prev_ = list_node;
@@ -361,28 +325,13 @@ class [[nodiscard]] List final {
     ++size_;
   }
 
-  /**
-   * @public
-   *
-   * @param[in] value
-   */
   constexpr auto PushBack(const ValueType& value) -> void { EmplaceBack(value); }
 
-  /**
-   * @public
-   *
-   * @param[in] value
-   */
   constexpr auto PushBack(ValueType&& value) -> void { EmplaceBack(std::move(value)); }
 
-  /**
-   * @public
-   *
-   * @param[in] args
-   */
   constexpr auto EmplaceBack(auto&&... args) -> void {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::EmplaceBack(): called on list in moved-from state");
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (proxy_node_->tail_) [[likely]] {
       proxy_node_->tail_->next_ = list_node;
       list_node->prev_ = proxy_node_->tail_;
@@ -394,13 +343,10 @@ class [[nodiscard]] List final {
     ++size_;
   }
 
-  /**
-   * @public
-   */
   constexpr auto PopFront() -> void {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::PopFront(): called on list in moved-from state");
     LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::PopFront(): called on empty list");
-    auto list_node = proxy_node_->head_;
+    NodePointer list_node{proxy_node_->head_};
     proxy_node_->head_ = list_node->next_;
     if (proxy_node_->tail_ != list_node) [[likely]] {
       list_node->next_->prev_ = nullptr;
@@ -411,13 +357,10 @@ class [[nodiscard]] List final {
     DeleteNode(list_node);
   }
 
-  /**
-   * @public
-   */
   constexpr auto PopBack() -> void {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::PopBack(): called on list in moved-from state");
     LAB_CONTAINERS_ASSERT(proxy_node_->tail_, "Undefined behaviour: List::PopBack(): called on empty list");
-    auto list_node = proxy_node_->tail_;
+    NodePointer list_node{proxy_node_->tail_};
     proxy_node_->tail_ = list_node->prev_;
     if (proxy_node_->head_ != list_node) [[likely]] {
       list_node->prev_->next_ = nullptr;
@@ -429,112 +372,48 @@ class [[nodiscard]] List final {
   }
 
  private:
-  /**
-   * @private
-   * @internal
-   *
-   * @param[in] list_node
-   */
-  constexpr auto DeleteNode(NodeType* list_node) -> void {
+  constexpr auto DeleteNode(NodePointer list_node) -> void {
     AllocatorTraits::destroy(allocator_, list_node);
     AllocatorTraits::deallocate(allocator_, list_node, 1);
   }
 
   constexpr auto DeleteNodes() -> void {
     while (proxy_node_->head_) {
-      auto list_node = proxy_node_->head_;
+      NodePointer list_node{proxy_node_->head_};
       proxy_node_->head_ = list_node->next_;
       DeleteNode(list_node);
     }
     proxy_node_->tail_ = nullptr;
-    size_ = SizeType{0};
+    size_ = 0;
   }
 
  public:
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return {proxy_node_->head_}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto end() noexcept -> ListSentinel { return {}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return {proxy_node_->head_}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto cend() const noexcept -> ListSentinel { return {}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator { return {proxy_node_->tail_}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto rend() noexcept -> ListSentinel { return {}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto crbegin() const noexcept -> ConstReverseIterator { return {proxy_node_->tail_}; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto crend() const noexcept -> ListSentinel { return {}; }
 
-  /**
-   * @public
-   */
   constexpr auto Clear() -> void {
     if (proxy_node_) {
       DeleteNodes();
     }
   }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Empty() const noexcept -> bool { return !size_; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Size() const noexcept -> SizeType { return size_; }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Front() noexcept -> std::expected<std::reference_wrapper<ValueType>, ListErrors> {
     if (proxy_node_->head_) [[likely]] {
       return proxy_node_->head_->value_;
@@ -542,11 +421,6 @@ class [[nodiscard]] List final {
     return std::unexpected{ListErrors::kEmpty};
   }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Front() const noexcept
     -> std::expected<std::reference_wrapper<const ValueType>, ListErrors> {
     if (proxy_node_->head_) [[likely]] {
@@ -555,11 +429,6 @@ class [[nodiscard]] List final {
     return std::unexpected{ListErrors::kEmpty};
   }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Back() noexcept -> std::expected<std::reference_wrapper<ValueType>, ListErrors> {
     if (proxy_node_->tail_) [[likely]] {
       return proxy_node_->tail_->value_;
@@ -567,11 +436,6 @@ class [[nodiscard]] List final {
     return std::unexpected{ListErrors::kEmpty};
   }
 
-  /**
-   * @public
-   *
-   * @throws None (no-throw guarantee).
-   */
   [[nodiscard]] constexpr auto Back() const noexcept
     -> std::expected<std::reference_wrapper<const ValueType>, ListErrors> {
     if (proxy_node_->tail_) [[likely]] {
@@ -594,36 +458,18 @@ class [[nodiscard]] List final {
   }
 #endif
 
-  /**
-   * @public
-   *
-   * @param[in] position
-   * @param[in] value
-   */
   constexpr auto Insert(ConstIterator position, const ValueType& value) -> Iterator { return Emplace(position, value); }
 
-  /**
-   * @public
-   *
-   * @param[in] position
-   * @param[in] value
-   */
   constexpr auto Insert(ConstIterator position, ValueType&& value) -> Iterator {
     return Emplace(position, std::move(value));
   }
 
-  /**
-   * @public
-   *
-   * @param[in] position
-   * @param[in] args
-   */
   constexpr auto Emplace(ConstIterator position, auto&&... args) -> Iterator {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::Emplace(): called on list in moved-from state");
 #ifdef LAB_CONTAINERS_LIST_ITERATOR_RANGE_CHECK
     LAB_CONTAINERS_ASSERT(IteratorRangeCheck(position), "Undefined behaviour: List::Emplace(): iterator not in range");
 #endif
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (position.current_) [[likely]] {
       if (proxy_node_->head_ == position.current_) [[unlikely]] {
         list_node->next_ = proxy_node_->head_;
@@ -652,9 +498,6 @@ class [[nodiscard]] List final {
     return list_node;
   }
 
-  /**
-   * @public
-   */
   constexpr auto Erase(ConstIterator position) -> void {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::Erase(): called on list in moved-from state");
     LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::Erase(): called on empty list");
@@ -677,80 +520,32 @@ class [[nodiscard]] List final {
     DeleteNode(position.current_);
   }
 
-  /**
-   * @public
-   * @brief Provides read/write access to the value with given index.
-   *
-   * @param[in] index The zero-base index of the value to access.
-   * @return `Reference` to obtain the specified value.
-   *
-   * @throws None (no-throw guarantee).
-   *
-   * @complexity O(n)
-   *
-   * @par Example:
-   * @code{.cpp}
-   * auto list = lab::containers::List{1, 2, 3};
-   * const auto list_size = list.Size();
-   * using SizeType = typename decltype(list)::SizeType;
-   * for (auto i = SizeType{}; i < list_size; ++i) {
-   *   // list[i] ... code
-   * }
-   * @endcode
-   */
   [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
     LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::operator[]: called on list in moved-from state");
     LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::operator[]: called on empty list");
     LAB_CONTAINERS_ASSERT(index <= size_, "Undefined behaviour: List::operator[]: index out of range");
-    auto traverser = proxy_node_->head_;
+    NodePointer traverser{proxy_node_->head_};
     while (index--) {
       traverser = traverser->next_;
     }
     return traverser->value_;
   }
 
-  /**
-   * @public
-   * @brief Provides read/write access to the value with given index.
-   *
-   * @param[in] index The zero-base index of the value to access.
-   * @return `Reference` to obtain the specified value.
-   *
-   * @throws None (no-throw guarantee).
-   *
-   * @complexity O(n)
-   *
-   * @par Example:
-   * @code{.cpp}
-   * const auto list = lab::containers::List{1, 2, 3};
-   * const auto list_size = list.Size();
-   * using SizeType = typename decltype(list)::SizeType;
-   * for (auto i = SizeType{}; i < list_size; ++i) {
-   *   // list[i] ... code
-   * }
-   * @endcode
-   */
   [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
     LAB_CONTAINERS_ASSERT(
       proxy_node_, "Undefined behaviour: List::operator[] const: called on list in moved-from state"
     );
     LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::operator[] const: called on empty list");
     LAB_CONTAINERS_ASSERT(index <= size_, "Undefined behaviour: List::operator[] const: index out of range");
-    auto traverser = proxy_node_->head_;
+    NodePointer traverser{proxy_node_->head_};
     while (index--) {
       traverser = traverser->next_;
     }
     return traverser->value_;
   }
 
-  /**
-   * @public
-   */
   [[nodiscard]] constexpr auto GetAllocator() const noexcept -> AllocatorType { return allocator_; }
 
-  /**
-   * @public
-   */
   constexpr auto Swap(List& other) noexcept -> void {
     LAB_CONTAINERS_ASSERT(this != &other, "Undefined behaviour: List::Swap(List&): self swap detected");
     proxy_node_.swap(other.proxy_node_);
@@ -765,6 +560,26 @@ class [[nodiscard]] List final {
   SizeType size_{};
   [[no_unique_address]] AllocatorType allocator_;
 };
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto begin(List<T, Allocator>& list) noexcept {
+  return list.begin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto end(List<T, Allocator>& list) noexcept {
+  return list.end();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cbegin(const List<T, Allocator>& list) noexcept {
+  return list.cbegin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cend(const List<T, Allocator>& list) noexcept {
+  return list.cend();
+}
 
 template<typename T, typename Allocator>
 constexpr auto swap(List<T, Allocator>& lhs, List<T, Allocator>& rhs) noexcept -> void {

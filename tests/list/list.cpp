@@ -53,20 +53,20 @@ TEST_CASE("List: Copy assignment operator test") {
 
 TEST_CASE("List: Front method test") {
   auto list = lab::containers::List<int>{kTestNumbers};
-  constexpr auto first_element = *kTestNumbers.begin();
-  CHECK(list.Front() == first_element);
-  CHECK(static_cast<const decltype(list)&>(list).Front() == first_element);
+  constexpr auto kFirstElement = *kTestNumbers.begin();
+  CHECK(list.Front() == kFirstElement);
+  CHECK(static_cast<const decltype(list)&>(list).Front() == kFirstElement);
 }
 
 TEST_CASE("List: Back method test") {
   auto list = lab::containers::List<int>{kTestNumbers};
-  constexpr auto last_element = [] [[nodiscard]] consteval noexcept {
+  constexpr auto kLastElement = [] [[nodiscard]] consteval noexcept {
     auto iterator = kTestNumbers.begin();
     std::advance(iterator, kTestNumbers.size() - 1);
     return *iterator;
   }();
-  CHECK(list.Back() == last_element);
-  CHECK(static_cast<const decltype(list)&>(list).Back() == last_element);
+  CHECK(list.Back() == kLastElement);
+  CHECK(static_cast<const decltype(list)&>(list).Back() == kLastElement);
 }
 
 TEST_CASE("List: PushFront method test") {

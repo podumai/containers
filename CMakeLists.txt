@@ -1,9 +1,15 @@
 cmake_minimum_required(VERSION 3.30)
 project(
   Containers
-  VERSION 0.0.1
+  VERSION 1.0.0
   LANGUAGES CXX
   DESCRIPTION "Laboratory work about containers"
+)
+
+option(
+  ENABLE_SANITIZER
+  "[${PROJECT_NAME}] Enable sanitizer for debug build (GCC/Clang)"
+  OFF
 )
 
 set(CMAKE_CXX_STANDARD 23)

@@ -64,7 +64,7 @@ class VectorIteratorBase {
 
   constexpr auto operator++(int) noexcept -> VectorIteratorBase {
     LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator++(int): nullptr dereference");
-    auto previous = *this;
+    VectorIteratorBase previous{*this};
     ++current_;
     return previous;
   }
@@ -77,7 +77,7 @@ class VectorIteratorBase {
 
   constexpr auto operator--(int) noexcept -> VectorIteratorBase {
     LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator--(int): nullptr dereference)");
-    auto previous = *this;
+    VectorIteratorBase previous{*this};
     --current_;
     return previous;
   }
@@ -212,7 +212,7 @@ class [[nodiscard]] Vector {
     if (first == last) [[unlikely]] {
       return;
     }
-    const auto size = static_cast<SizeType>(std::ranges::distance(first, last));
+    const SizeType size{static_cast<SizeType>(std::ranges::distance(first, last))};
     first_ = AllocatorTraits::allocate(allocator_, size);
     current_ = first_;
     last_ = first_ + size;
@@ -223,7 +223,7 @@ class [[nodiscard]] Vector {
         ++current_;
       }
     } catch (...) {
-      for (auto traverser = first_; traverser != current_; ++traverser) {
+      for (Pointer traverser{first_}; traverser != current_; ++traverser) {
         AllocatorTraits::destroy(allocator_, traverser);
       }
       AllocatorTraits::deallocate(allocator_, first_, size);
@@ -317,7 +317,7 @@ class [[nodiscard]] Vector {
 
   [[nodiscard]] constexpr auto At(const SizeType index) noexcept
     -> std::expected<std::reference_wrapper<ValueType>, VectorErrors> {
-    auto indexed_position = first_ ? first_ + index : current_;
+    Pointer indexed_position{first_ ? first_ + index : current_};
     if (indexed_position < current_) [[likely]] {
       return *indexed_position;
     }
@@ -326,7 +326,7 @@ class [[nodiscard]] Vector {
 
   [[nodiscard]] constexpr auto At(const SizeType index) const noexcept
     -> std::expected<std::reference_wrapper<const ValueType>, VectorErrors> {
-    auto indexed_position = first_ ? first_ + index : current_;
+    const Pointer indexed_position{first_ ? first_ + index : current_};
     if (indexed_position < current_) [[likely]] {
       return *indexed_position;
     }
@@ -381,21 +381,21 @@ class [[nodiscard]] Vector {
 
  private:
   constexpr auto InternalResize(const SizeType new_size) -> void {
-    auto new_first = AllocatorTraits::allocate(allocator_, new_size);
-    auto new_current = new_first;
+    Pointer new_first{AllocatorTraits::allocate(allocator_, new_size)};
+    Pointer new_current{new_first};
     try {
       std::for_each(begin(), end(), [&new_current, this](auto& value) constexpr -> void {
         AllocatorTraits::construct(allocator_, new_current, std::move_if_noexcept(value));
         ++new_current;
       });
     } catch (...) {
-      for (auto traverser = new_first; traverser != new_current; ++traverser) {
+      for (Pointer traverser{new_first}; traverser != new_current; ++traverser) {
         AllocatorTraits::destroy(allocator_, traverser);
       }
       AllocatorTraits::deallocate(allocator_, new_first, new_size);
       throw;
     }
-    for (auto traverser = new_first; traverser != new_current; ++traverser) {
+    for (Pointer traverser{new_first}; traverser != new_current; ++traverser) {
       AllocatorTraits::destroy(allocator_, traverser);
     }
     if (first_) {
@@ -407,14 +407,14 @@ class [[nodiscard]] Vector {
   }
 
   [[nodiscard]] constexpr auto ComputeNewCapacity() const noexcept -> SizeType {
-    const auto old_capacity = Capacity();
+    const SizeType old_capacity{Capacity()};
     return old_capacity + (old_capacity >> 1) + 2;
   }
 
  public:
   constexpr auto EmplaceBack(auto&&... args) -> Reference {
     if (current_ == last_) [[unlikely]] {
-      const auto new_capacity = ComputeNewCapacity();
+      const SizeType new_capacity{ComputeNewCapacity()};
       InternalResize(new_capacity);
     }
     AllocatorTraits::construct(allocator_, current_, std::forward<decltype(args)>(args)...);
@@ -428,11 +428,11 @@ class [[nodiscard]] Vector {
 
   constexpr auto Emplace(ConstIterator position, auto&&... args) -> Iterator {
     if (position.current_ != current_) [[likely]] {
-      auto emplace_position = position.current_;
+      Pointer emplace_position{position.current_};
       if (current_ == last_) [[unlikely]] {
-        const auto delta = static_cast<SizeType>(std::distance(cbegin(), position));
+        const SizeType delta{static_cast<SizeType>(std::distance(cbegin(), position))};
         {
-          const auto new_capacity = ComputeNewCapacity();
+          const SizeType new_capacity{ComputeNewCapacity()};
           InternalResize(new_capacity);
         }
         emplace_position = first_ + delta;
@@ -441,7 +441,7 @@ class [[nodiscard]] Vector {
       AllocatorTraits::construct(allocator_, current_, std::move_if_noexcept(*(current_ - 1)));
       ++current_;
 
-      for (auto backward_traverser = current_ - 2; backward_traverser != emplace_position; --backward_traverser) {
+      for (Pointer backward_traverser{current_ - 2}; backward_traverser != emplace_position; --backward_traverser) {
         *backward_traverser = std::move_if_noexcept(*(backward_traverser - 1));
       }
 
@@ -461,7 +461,7 @@ class [[nodiscard]] Vector {
 
   constexpr auto Erase(ConstIterator position) -> Iterator {
     LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::Erase(): called on empty vector");
-    for (auto next_element = position.current_ + 1; next_element != current_; ++next_element) {
+    for (Pointer next_element{position.current_ + 1}; next_element != current_; ++next_element) {
       *position.current_ = std::move_if_noexcept(*next_element);
       ++position;
     }
@@ -473,7 +473,7 @@ class [[nodiscard]] Vector {
     if (!first_) [[unlikely]] {
       return;
     }
-    for (auto traverser = first_; traverser != current_; ++traverser) {
+    for (Pointer traverser{first_}; traverser != current_; ++traverser) {
       AllocatorTraits::destroy(allocator_, traverser);
     }
     AllocatorTraits::deallocate(allocator_, first_, Capacity());
@@ -485,25 +485,25 @@ class [[nodiscard]] Vector {
   constexpr auto Resize(const SizeType count) -> void { Resize(count, ValueType{}); }
 
   constexpr auto Resize(SizeType count, const ValueType& value) -> void {
-    const auto size = Size();
+    const SizeType size{Size()};
     if (!count || count == size) [[unlikely]] {
       return;
     }
     if (count < size) {
-      for (auto delta = size - count; delta; --delta) {
+      for (SizeType delta{size - count}; delta; --delta) {
         AllocatorTraits::destroy(allocator_, --current_);
       }
     } else {
-      if (auto new_size = size + count; new_size >= Capacity()) {
+      if (SizeType new_size{size + count}; new_size >= Capacity()) {
         InternalResize(new_size);
       }
-      auto previous_current = current_;
-      for (auto delta = count - size; delta; --delta) {
+      Pointer previous_current{current_};
+      for (SizeType delta{count - size}; delta; --delta) {
         try {
           AllocatorTraits::construct(allocator_, current_, value);
           ++current_;
         } catch (...) {
-          for (auto traverser = previous_current; traverser != current_; ++traverser) {
+          for (Pointer traverser{previous_current}; traverser != current_; ++traverser) {
             AllocatorTraits::destroy(allocator_, traverser);
           }
           current_ = previous_current;
@@ -517,22 +517,22 @@ class [[nodiscard]] Vector {
     if (!elements) [[unlikely]] {
       return;
     }
-    const auto new_capacity = Capacity() + elements;
-    auto new_first = AllocatorTraits::allocate(allocator_, new_capacity);
-    auto new_current = new_first;
+    const SizeType new_capacity{Capacity() + elements};
+    Pointer new_first{AllocatorTraits::allocate(allocator_, new_capacity)};
+    Pointer new_current{new_first};
     try {
       std::for_each(begin(), end(), [&new_current, this](auto& value) constexpr -> void {
         AllocatorTraits::construct(allocator_, new_current, std::move_if_noexcept(value));
         ++new_current;
       });
     } catch (...) {
-      for (auto traverser = new_first; traverser != new_current; ++traverser) {
+      for (Pointer traverser{new_first}; traverser != new_current; ++traverser) {
         AllocatorTraits::destroy(allocator_, traverser);
       }
       AllocatorTraits::deallocate(allocator_, new_first, new_capacity);
       throw;
     }
-    for (auto traverser = first_; traverser != current_; ++traverser) {
+    for (Pointer traverser{first_}; traverser != current_; ++traverser) {
       AllocatorTraits::destroy(allocator_, traverser);
     }
     AllocatorTraits::deallocate(allocator_, first_, new_capacity - elements);
@@ -565,6 +565,26 @@ class [[nodiscard]] Vector {
   Pointer last_{nullptr};
   [[no_unique_address]] AllocatorType allocator_;
 };
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto begin(Vector<T, Allocator>& vector) noexcept {
+  return vector.begin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto end(Vector<T, Allocator>& vector) noexcept {
+  return vector.end();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cbegin(const Vector<T, Allocator>& vector) noexcept {
+  return vector.cbegin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cend(const Vector<T, Allocator>& vector) noexcept {
+  return vector.cend();
+}
 
 template<typename T, typename Allocator>
 constexpr auto swap(Vector<T, Allocator>& lhs, Vector<T, Allocator>& rhs) noexcept -> void {

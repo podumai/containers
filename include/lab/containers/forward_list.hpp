@@ -74,7 +74,7 @@ class [[nodiscard]] ForwardListIteratorBase {
     LAB_CONTAINERS_ASSERT(
       current_, "Undefined behaviour: ForwardListIteratorBase::operator++(int): nullptr dereference"
     );
-    auto previous = *this;
+    ForwardListIteratorBase previous{*this};
     current_ = current_->next_;
     return previous;
   }
@@ -156,7 +156,7 @@ class [[nodiscard]] ForwardList {
 
  private:
   constexpr auto ConstructNode(auto&&... args) -> NodePointer {
-    auto list_node = AllocatorTraits::allocate(allocator_, 1);
+    NodePointer list_node{AllocatorTraits::allocate(allocator_, 1)};
     try {
       AllocatorTraits::construct(allocator_, list_node, std::forward<decltype(args)>(args)...);
     } catch (...) {
@@ -174,7 +174,7 @@ class [[nodiscard]] ForwardList {
       return;
     }
     head_ = ConstructNode(*first++);
-    auto traverser = head_;
+    NodePointer traverser{head_};
     while (first != last) {
       try {
         traverser->next_ = ConstructNode(*first);
@@ -221,7 +221,7 @@ class [[nodiscard]] ForwardList {
  public:
   constexpr auto Clear() -> void {
     while (head_) {
-      auto list_node = head_;
+      NodePointer list_node{head_};
       head_ = head_->next_;
       DeleteNode(list_node);
     }
@@ -242,7 +242,7 @@ class [[nodiscard]] ForwardList {
   constexpr auto PushFront(ValueType&& value) -> void { EmplaceFront(std::move(value)); }
 
   constexpr auto EmplaceFront(auto&&... args) -> void {
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (head_) [[likely]] {
       list_node->next_ = head_;
       head_ = list_node;
@@ -253,7 +253,7 @@ class [[nodiscard]] ForwardList {
 
   constexpr auto PopFront() -> void {
     LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: ForwardList::PopFront(): called on empty list");
-    auto list_node = head_;
+    NodePointer list_node{head_};
     head_ = head_->next_;
     DeleteNode(list_node);
   }
@@ -263,9 +263,9 @@ class [[nodiscard]] ForwardList {
   constexpr auto PushBack(ValueType&& value) -> void { EmplaceBack(std::move(value)); }
 
   constexpr auto EmplaceBack(auto&&... args) -> void {
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (head_) [[likely]] {
-      auto traverser = head_;
+      NodePointer traverser{head_};
       while (traverser->next_) {
         traverser = traverser->next_;
       }
@@ -278,7 +278,7 @@ class [[nodiscard]] ForwardList {
   constexpr auto PopBack() -> void {
     LAB_CONTAINERS_ASSERT(Empty(), "Undefined behaviour: ForwardList::PopBack(): called on empty list");
     if (head_->next_) [[likely]] {
-      auto traverser = head_;
+      NodePointer traverser{head_};
       while (traverser->next_->next_) {
         traverser = traverser->next_;
       }
@@ -288,9 +288,7 @@ class [[nodiscard]] ForwardList {
     }
   }
 
-  [[nodiscard]] constexpr auto Size() const noexcept -> SizeType {
-    return static_cast<SizeType>(std::ranges::distance(cbegin(), cend()));
-  }
+  [[nodiscard]] constexpr auto Size() const noexcept -> SizeType { return std::ranges::distance(cbegin(), cend()); }
 
   [[nodiscard]] constexpr auto Empty() const noexcept -> bool { return !head_; }
 
@@ -299,7 +297,7 @@ class [[nodiscard]] ForwardList {
 #ifdef LAB_CONTAINERS_FORWARD_LIST_SUBSCRIPT_INDEX_CHECK
     LAB_CONTAINERS_ASSERT(Size() > index, "Undefined behaviour: ForwardList::operator[]: index is out of range");
 #endif
-    auto traverser = head_;
+    NodePointer traverser{head_};
     while (index--) {
       traverser = traverser->next_;
     }
@@ -311,7 +309,7 @@ class [[nodiscard]] ForwardList {
 #ifdef LAB_CONTAINERS_FORWARD_LIST_SUBSCRIPT_INDEX_CHECK
     LAB_CONTAINERS_ASSERT(Size() > index, "Undefined behaviour: ForwardList::operator[] const: index is out of range");
 #endif
-    auto traverser = head_;
+    NodePointer traverser{head_};
     while (index--) {
       traverser = traverser->next_;
     }
@@ -335,7 +333,7 @@ class [[nodiscard]] ForwardList {
   }
 
   constexpr auto EmplaceAfter(ConstIterator position, auto&&... args) -> Iterator {
-    auto list_node = ConstructNode(std::forward<decltype(args)>(args)...);
+    NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (head_) [[likely]] {
       list_node->next_ = position.current_->next_;
       position.current_->next_ = list_node;
@@ -349,7 +347,7 @@ class [[nodiscard]] ForwardList {
 
   constexpr auto EraseAfter(ConstIterator position) -> void {
     LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: ForwardList::EraseAfter(): called on empty list");
-    auto list_node = position.current_->next_;
+    NodePointer list_node{position.current_->next_};
     position.current_->next_ = list_node->next_;
     DeleteNode(list_node);
   }
@@ -384,6 +382,26 @@ class [[nodiscard]] ForwardList {
   NodePointer head_{nullptr};
   [[no_unique_address]] AllocatorType allocator_;
 };
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto begin(ForwardList<T, Allocator>& list) noexcept {
+  return list.begin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto end(ForwardList<T, Allocator>& list) noexcept {
+  return list.end();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cbegin(const ForwardList<T, Allocator>& list) noexcept {
+  return list.cbegin();
+}
+
+template<typename T, typename Allocator>
+[[nodiscard]] constexpr auto cend(const ForwardList<T, Allocator>& list) noexcept {
+  return list.cend();
+}
 
 template<typename T, typename Allocator>
 constexpr auto swap(ForwardList<T, Allocator>& lhs, ForwardList<T, Allocator>& rhs) noexcept -> void {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <compare>
 #include <concepts>
 #include <expected>
@@ -206,7 +207,7 @@ class [[nodiscard]] Vector {
     , last_{std::exchange(other.last_, nullptr)}
     , allocator_{std::move(other.allocator_)} { }
 
-  template<std::input_iterator InputIterator, typename Sentinel>
+  template<std::input_iterator InputIterator, std::sentinel_for<InputIterator> Sentinel>
   constexpr Vector(InputIterator first, Sentinel last, const AllocatorType& allocator = AllocatorType{})
     : Vector{allocator} {
     if (first == last) [[unlikely]] {

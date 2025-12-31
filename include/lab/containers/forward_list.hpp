@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <compare>
 #include <concepts>
 #include <expected>
 #include <iterator>
@@ -167,7 +168,7 @@ class [[nodiscard]] ForwardList {
   }
 
  public:
-  template<std::input_iterator InputIter, typename Sentinel>
+  template<std::input_iterator InputIter, std::sentinel_for<InputIter> Sentinel>
   constexpr ForwardList(InputIter first, Sentinel last, const Allocator& allocator = Allocator{})
     : ForwardList{allocator} {
     if (first == last) [[unlikely]] {
@@ -210,6 +211,14 @@ class [[nodiscard]] ForwardList {
     );
     ForwardList{other}.Swap(*this);
     return *this;
+  }
+
+  [[nodiscard]] friend constexpr auto operator==(const ForwardList& lhs, const ForwardList& rhs) noexcept -> bool {
+    return std::ranges::equal(lhs, rhs);
+  }
+
+  [[nodiscard]] friend constexpr auto operator<=>(const ForwardList& lhs, const ForwardList& rhs) noexcept {
+    return std::lexicographical_compare_three_way(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
   }
 
  private:

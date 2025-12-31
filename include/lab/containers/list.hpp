@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <compare>
 #include <concepts>
 #include <expected>
 #include <functional>
@@ -262,7 +263,7 @@ class [[nodiscard]] List final {
   }
 
  public:
-  template<std::input_iterator InputIterator, typename Sentinel>
+  template<std::input_iterator InputIterator, std::sentinel_for<InputIterator> Sentinel>
   constexpr List(InputIterator first, Sentinel last, const Allocator& allocator = Allocator{}) : List{allocator} {
     if (first == last) [[unlikely]] {
       return;
@@ -305,6 +306,14 @@ class [[nodiscard]] List final {
     LAB_CONTAINERS_ASSERT(this != &other, "List::operator=(const List&): self copy operation");
     List{other}.Swap(*this);
     return *this;
+  }
+
+  [[nodiscard]] friend constexpr auto operator==(const List& lhs, const List& rhs) noexcept -> bool {
+    return std::ranges::equal(lhs, rhs);
+  }
+
+  [[nodiscard]] friend constexpr auto operator<=>(const List& lhs, const List& rhs) noexcept {
+    return std::lexicographical_compare_three_way(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
   }
 
   constexpr auto PushFront(const ValueType& value) -> void { EmplaceFront(value); }

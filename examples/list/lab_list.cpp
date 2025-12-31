@@ -7,15 +7,15 @@
 namespace lab::utility {
 
 auto GenerateRange(lab::containers::List<int>& list) -> void {
-  auto current_position = std::ranges::cbegin(list);
-  for (const auto value : std::views::iota(0, 10)) {
-    current_position = list.Insert(current_position, value);
+  auto current_position{std::ranges::cbegin(list)};
+  for (const int value : std::views::iota(0, 10)) {
+    list.PushBack(value);
   }
 }
 
 auto EraseElements(lab::containers::List<int>& list, std::initializer_list<int> elements) -> void {
-  for (const auto value : elements) {
-    const auto position = std::ranges::find(list, value);
+  for (const int value : elements) {
+    const auto position{std::ranges::find(list, value)};
     if (position == std::ranges::cend(list)) {
       std::println(stderr, "Missing value {} in ForwardList instance", value);
       continue;
@@ -25,14 +25,14 @@ auto EraseElements(lab::containers::List<int>& list, std::initializer_list<int> 
 }
 
 auto PrintRange(std::ranges::range auto&& range) -> void {
-  auto first = std::ranges::cbegin(std::forward<decltype(range)>(range));
-  const auto last = std::ranges::cend(std::forward<decltype(range)>(range));
+  auto first{std::ranges::cbegin(std::forward<decltype(range)>(range))};
+  const auto last{std::ranges::cend(std::forward<decltype(range)>(range))};
   if (first == last) {
     std::println("<Range is empty>");
     return;
   }
-  const auto range_size = std::ranges::distance(first, last);
-  auto last_valid_position = first;
+  const auto range_size{std::ranges::distance(first, last)};
+  auto last_valid_position{first};
   std::ranges::advance(last_valid_position, range_size - 1);
   while (first != last_valid_position) {
     std::print("{},", *first);
@@ -44,10 +44,10 @@ auto PrintRange(std::ranges::range auto&& range) -> void {
 auto InsertFirstElement(lab::containers::List<int>& list, const int value) -> void { list.PushFront(value); }
 
 auto InsertMiddleElement(lab::containers::List<int>& list, const int value) -> void {
-  const auto first = std::ranges::cbegin(list);
-  const auto last = std::ranges::cend(list);
-  auto middle_position = first;
-  const auto list_size = std::ranges::distance(first, last);
+  const auto first{std::ranges::cbegin(list)};
+  const auto last{std::ranges::cend(list)};
+  auto middle_position{first};
+  const auto list_size{std::ranges::distance(first, last)};
   std::ranges::advance(middle_position, list_size >> 1);
   list.Insert(middle_position, value);
 }
@@ -55,15 +55,15 @@ auto InsertMiddleElement(lab::containers::List<int>& list, const int value) -> v
 auto InsertLastElement(lab::containers::List<int>& list, const int value) -> void { list.PushBack(value); }
 
 auto PrintRangeSize(std::ranges::range auto&& range) -> void {
-  const auto first = std::ranges::cbegin(std::forward<decltype(range)>(range));
-  const auto last = std::ranges::cend(std::forward<decltype(range)>(range));
+  const auto first{std::ranges::cbegin(std::forward<decltype(range)>(range))};
+  const auto last{std::ranges::cend(std::forward<decltype(range)>(range))};
   std::println("{}", std::ranges::distance(first, last));
 }
 
 }  // namespace lab::utility
 
 auto main() -> int {
-  auto list = lab::containers::List<int>{};
+  lab::containers::List<int> list{};
   lab::utility::GenerateRange(list);
   lab::utility::PrintRange(list);
   lab::utility::PrintRangeSize(list);

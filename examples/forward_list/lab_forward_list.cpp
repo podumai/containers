@@ -8,7 +8,7 @@
 namespace lab::utility {
 
 auto GenerateRange(lab::containers::ForwardList<int>& list) -> void {
-  auto current_position = std::ranges::cbegin(list);
+  auto current_position{std::ranges::cbegin(list)};
   for (const int value : std::views::iota(0, 10)) {
     const auto inserted_position{list.InsertAfter(current_position, value)};
     current_position = inserted_position;
@@ -22,7 +22,7 @@ auto EraseElements(lab::containers::ForwardList<int>& list, std::initializer_lis
     erase_position = std::ranges::cbegin(list);
     std::ranges::advance(erase_position, index);
   }
-  for (const ConstIterator& erase_position : erase_positions) {
+  for (const auto& erase_position : erase_positions) {
     list.EraseAfter(erase_position);
   }
 }

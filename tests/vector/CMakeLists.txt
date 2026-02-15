@@ -19,13 +19,11 @@ target_link_libraries(
 target_compile_options(
   VectorTest
   PRIVATE
-  $<$<CONFIG:Debug>:-coverage>
   ${SANITIZER_FLAGS}
 )
 target_link_options(
   VectorTest
   PRIVATE
-  $<$<CONFIG:Debug>:-coverage>
   ${SANITIZER_FLAGS}
 )
 set_target_properties(

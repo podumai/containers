@@ -1,4 +1,4 @@
-name: 'ubuntu-24.04'
+name: 'ubuntu-latest'
 on:
   push:
     branches: [ 'master' ]
@@ -20,7 +20,7 @@ jobs:
             conan_preset: 'conan-release'
     uses: 'podumai/containers/.github/workflows/ci.yml@master'
     with:
-      os: 'ubuntu-24.04'
+      os: 'ubuntu-latest'
       build_type: ${{ matrix.build_type }}
       configure_preset: ${{ matrix.conan_preset }}
       conan_preset: ${{ matrix.conan_preset }}

@@ -1,4 +1,4 @@
-name: 'windows-2025'
+name: 'windows-latest'
 on:
   push:
     branches: [ 'master' ]
@@ -19,7 +19,7 @@ jobs:
             conan_preset: 'conan-release'
     uses: 'podumai/containers/.github/workflows/ci.yml@master'
     with:
-      os: 'windows-2025'
+      os: 'windows-latest'
       build_type: ${{ matrix.build_type }}
       configure_preset: 'conan-default'
       conan_preset: ${{ matrix.conan_preset }}

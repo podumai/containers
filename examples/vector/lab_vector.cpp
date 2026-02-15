@@ -15,7 +15,7 @@ auto GenerateRange(lab::containers::Vector<int>& vector) -> void {
 auto EraseElements(lab::containers::Vector<int>& vector, std::initializer_list<int> elements) -> void {
   for (const int value : elements) {
     const auto position{std::ranges::find(vector, value)};
-    if (position == std::ranges::cend(vector)) {
+    if (position == vector.cend()) {
       std::println(stderr, "Missing value {} in ForwardList instance", value);
       continue;
     }
@@ -23,9 +23,9 @@ auto EraseElements(lab::containers::Vector<int>& vector, std::initializer_list<i
   }
 }
 
-auto PrintRange(std::ranges::range auto&& range) -> void {
-  auto first{std::ranges::cbegin(std::forward<decltype(range)>(range))};
-  const auto last{std::ranges::cend(std::forward<decltype(range)>(range))};
+auto PrintRange(const lab::containers::Vector<int>& vector) -> void {
+  auto first{vector.cbegin()};
+  const auto last{vector.cend()};
   if (first == last) {
     std::println("<Range is empty>");
     return;
@@ -45,8 +45,8 @@ auto InsertFirstElement(lab::containers::Vector<int>& vector, const int value) -
 }
 
 auto InsertMiddleElement(lab::containers::Vector<int>& vector, const int value) -> void {
-  auto first{std::ranges::cbegin(vector)};
-  const auto last{std::ranges::cend(vector)};
+  auto first{vector.cbegin()};
+  const auto last{vector.cend()};
   auto middle_position{first};
   const auto list_size{std::ranges::distance(first, last)};
   std::ranges::advance(middle_position, list_size >> 1);
@@ -57,10 +57,8 @@ auto InsertLastElement(lab::containers::Vector<int>& vector, const int value) ->
   vector.Insert(vector.cend(), value);
 }
 
-auto PrintRangeSize(std::ranges::range auto&& range) -> void {
-  const auto first{std::ranges::cbegin(std::forward<decltype(range)>(range))};
-  const auto last{std::ranges::cend(std::forward<decltype(range)>(range))};
-  std::println("{}", std::ranges::distance(first, last));
+auto PrintRangeSize(const lab::containers::Vector<int>& vector) -> void {
+  std::println("{}", std::ranges::distance(vector.cbegin(), vector.cend()));
 }
 
 }  // namespace lab::utility

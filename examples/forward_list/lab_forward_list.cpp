@@ -34,7 +34,7 @@ auto PrintRange(const lab::containers::ForwardList<int>& list) -> void {
     std::println("<Range is empty>");
     return;
   }
-  const auto range_size{std::distance(first, last)};
+  const auto range_size{std::ranges::distance(first, last)};
   auto last_valid_position{first};
   std::advance(last_valid_position, range_size - 1);
   while (first != last_valid_position) {

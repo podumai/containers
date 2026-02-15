@@ -14,8 +14,8 @@ auto GenerateRange(lab::containers::List<int>& list) -> void {
 
 auto EraseElements(lab::containers::List<int>& list, std::initializer_list<int> elements) -> void {
   for (const int value : elements) {
-    const auto position{std::ranges::find(list, value)};
-    if (position == std::ranges::cend(list)) {
+    const auto position{std::ranges::find(list.cbegin(), list.cend(), value)};
+    if (position == list.cend()) {
       std::println(stderr, "Missing value {} in ForwardList instance", value);
       continue;
     }

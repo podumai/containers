@@ -2,9 +2,9 @@
 
 | Platform/CI |
 | --- |
-| [![ubuntu](https://github.com/podumai/containers/actions/workflows/ubuntu-24.04.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/ubuntu.yml) |  
-| [![macOS](https://github.com/podumai/containers/actions/workflows/macos-15.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/macos.yml) |  
-| [![windows](https://github.com/podumai/containers/actions/workflows/windows-2025.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/windows.yml) |
+| [![ubuntu-latest](https://github.com/podumai/containers/actions/workflows/ubuntu.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/ubuntu.yml) |  
+| [![macOS](https://github.com/podumai/containers/actions/workflows/macos.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/macos.yml) |  
+| [![windows-latest](https://github.com/podumai/containers/actions/workflows/windows.yml/badge.svg)](https://github.com/podumai/containers/actions/workflows/windows.yml) |
 
 ## Tasks
 

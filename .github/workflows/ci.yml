@@ -75,7 +75,7 @@ jobs:
       
       - name: Make archive
         run: |
-          tar -czf allocators-${{ runner.os }}.tar.gz \
+          tar -czf containers-${{ runner.os }}.tar.gz \
               --exclude=".git" \
               --exclude=".github" \
               ./*
@@ -83,8 +83,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: artifact-allocators-${{ runner.os }}
-          path: ./allocators-${{ runner.os }}.tar.gz
+          name: artifact-containers-${{ runner.os }}
+          path: ./containers-${{ runner.os }}.tar.gz
           retention-days: 5
           overwrite: true
 
@@ -102,7 +102,7 @@ jobs:
       - name: Download archive
         uses: actions/download-artifact@v4
         with:
-          name: artifact-allocators-${{ runner.os }}
+          name: artifact-containers-${{ runner.os }}
           path: ./artifact
       
       - name: Read project version
@@ -116,5 +116,5 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
-          files: ./artifact/allocators-${{ runner.os }}.tar.gz
+          files: ./artifact/containers-${{ runner.os }}.tar.gz
           fail_on_unmatched_files: true

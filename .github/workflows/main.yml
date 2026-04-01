@@ -53,3 +53,20 @@ jobs:
           else
             npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
           fi
+
+  lint-cmake:
+    runs-on: ${{ needs.config.outputs.linux-runner-image }}
+    permissions:
+      contents: 'read'
+    needs: [ 'config' ]
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+
+      - name: 'Setup cmake-lint'
+        uses: 'aminya/setup-cpp@v1'
+        with:
+          cmake-lint: true
+
+      - name: 'Run cmake-lint'
+        run: cmake-lint -c .cmake-format.py ./**/CMakeLists.txt

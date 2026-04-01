@@ -18,6 +18,7 @@ jobs:
       linux-compiler: ${{ steps.constants.outputs.linux-compiler }}
       macos-runner-image: ${{ steps.constants.outputs.macos-runner-image }}
       macos-compiler: ${{ steps.constants.outputs.macos-compiler }}
+      conan-preset: ${{ steps.constants.outputs.conan-preset }}
     steps:
       - name: 'Define constants'
         id: 'constants'
@@ -26,6 +27,12 @@ jobs:
           echo "linux-compiler=llvm-21" >> $GITHUB_OUTPUT
           echo "macos-runner-image=macos-26" >> $GITHUB_OUTPUT
           echo "macos-compiler=apple-clang-17" >> $GITHUB_OUTPUT
+          
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "conan-preset=conan-release" >> $GITHUB_OUTPUT
+          else
+            echo "conan-preset=conan-debug" >> $GITHUB_OUTPUT
+          fi
 
   lint-commits:
     runs-on: ${{ needs.config.outputs.linux-runner-image }}

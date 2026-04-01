@@ -11,7 +11,7 @@ on:
 
 jobs:
   config:
-    runs-on: ${{ steps.outputs.constants.linux-runner-image }}
+    runs-on: 'ubuntu-24.04'
     permissions: { }
     outputs:
       linux-runner-image: ${{ steps.constants.outputs.linux-runner-image }}

@@ -20,6 +20,7 @@ jobs:
       macos-compiler: ${{ steps.constants.outputs.macos-compiler }}
     steps:
       - name: 'Define constants'
+        id: 'constants'
         run: |
           echo "linux-runner-image=ubuntu-24.04" >> $GITHUB_OUTPUT
           echo "linux-compiler=llvm-21" >> $GITHUB_OUTPUT

@@ -66,7 +66,7 @@ class [[nodiscard]] ForwardListIteratorBase {
   constexpr auto operator*() const noexcept -> Reference { return current_->value_; }
 
   constexpr auto operator++() noexcept -> ForwardListIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ForwardListIteratorBase::operator++(): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ForwardListIteratorBase::operator++(): nullptr dereference");
     current_ = current_->next_;
     return *this;
   }
@@ -261,7 +261,7 @@ class [[nodiscard]] ForwardList {
   }
 
   constexpr auto PopFront() -> void {
-    LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: ForwardList::PopFront(): called on empty list");
+    utility::LabContainersAssert(!Empty(), "Undefined behaviour: ForwardList::PopFront(): called on empty list");
     NodePointer list_node{head_};
     head_ = head_->next_;
     DeleteNode(list_node);
@@ -285,7 +285,7 @@ class [[nodiscard]] ForwardList {
   }
 
   constexpr auto PopBack() -> void {
-    LAB_CONTAINERS_ASSERT(Empty(), "Undefined behaviour: ForwardList::PopBack(): called on empty list");
+    utility::LabContainersAssert(Empty(), "Undefined behaviour: ForwardList::PopBack(): called on empty list");
     if (head_->next_) [[likely]] {
       NodePointer traverser{head_};
       while (traverser->next_->next_) {
@@ -302,9 +302,9 @@ class [[nodiscard]] ForwardList {
   [[nodiscard]] constexpr auto Empty() const noexcept -> bool { return !head_; }
 
   [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(Empty(), "Undefined behaviour: ForwardList::operator[]: called on empty list");
+    utility::LabContainersAssert(Empty(), "Undefined behaviour: ForwardList::operator[]: called on empty list");
 #ifdef LAB_CONTAINERS_FORWARD_LIST_SUBSCRIPT_INDEX_CHECK
-    LAB_CONTAINERS_ASSERT(Size() > index, "Undefined behaviour: ForwardList::operator[]: index is out of range");
+    utility::LabContainersAssert(Size() > index, "Undefined behaviour: ForwardList::operator[]: index is out of range");
 #endif
     NodePointer traverser{head_};
     while (index--) {
@@ -314,9 +314,9 @@ class [[nodiscard]] ForwardList {
   }
 
   [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
-    LAB_CONTAINERS_ASSERT(Empty(), "Undefined behaviour: ForwardList::operator[] const: called on empty list");
+    utility::LabContainersAssert(Empty(), "Undefined behaviour: ForwardList::operator[] const: called on empty list");
 #ifdef LAB_CONTAINERS_FORWARD_LIST_SUBSCRIPT_INDEX_CHECK
-    LAB_CONTAINERS_ASSERT(Size() > index, "Undefined behaviour: ForwardList::operator[] const: index is out of range");
+    utility::LabContainersAssert(Size() > index, "Undefined behaviour: ForwardList::operator[] const: index is out of range");
 #endif
     NodePointer traverser{head_};
     while (index--) {
@@ -355,7 +355,7 @@ class [[nodiscard]] ForwardList {
   constexpr auto EraseAfter(ForwardListBeforeBeginSentinel /* sentinel */) -> void { PopFront(); }
 
   constexpr auto EraseAfter(ConstIterator position) -> void {
-    LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: ForwardList::EraseAfter(): called on empty list");
+    utility::LabContainersAssert(!Empty(), "Undefined behaviour: ForwardList::EraseAfter(): called on empty list");
     NodePointer list_node{position.current_->next_};
     position.current_->next_ = list_node->next_;
     DeleteNode(list_node);

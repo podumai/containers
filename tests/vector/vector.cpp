@@ -901,7 +901,7 @@ TEST(Vector, ShrinkToFit) {
 }
 
 TEST(Vector, EmplaceFront) {
-  constexpr auto kEmplaceValue = int{-1};
+  constexpr auto kEmplaceValue = -1;
   {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();

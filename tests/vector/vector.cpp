@@ -906,11 +906,11 @@ TEST(Vector, EmplaceFront) {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();
     empty_vector.Emplace(empty_vector.cbegin(), kEmplaceValue);
-    EXPECT_EQ(empty_vector.Size(), 1);
-    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    EXPECT_EQ(empty_vector.Size(), 1); // NOLINT
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity); // NOLINT
     const auto result = empty_vector.Front();
     if (result) {
-      EXPECT_EQ(result.value().get(), kEmplaceValue);
+      EXPECT_EQ(result.value().get(), kEmplaceValue); // NOLINT
     } else {
       FAIL();
     }
@@ -920,11 +920,11 @@ TEST(Vector, EmplaceFront) {
     const auto previous_size = filled_vector.Size();
     const auto previous_capacity = filled_vector.Capacity();
     filled_vector.Emplace(filled_vector.cbegin(), kEmplaceValue);
-    EXPECT_EQ(filled_vector.Size(), previous_size + 1);
-    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1); // NOLINT
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity); // NOLINT
     const auto result = filled_vector.Front();
     if (result) {
-      EXPECT_EQ(result.value().get(), kEmplaceValue);
+      EXPECT_EQ(result.value().get(), kEmplaceValue); // NOLINT
     } else {
       FAIL();
     }

@@ -16,22 +16,34 @@ jobs:
     outputs:
       linux-runner-image: ${{ steps.constants.outputs.linux-runner-image }}
       linux-compiler: ${{ steps.constants.outputs.linux-compiler }}
+      linux-conan-profile-template: ${{ steps.constants.outputs.linux-conan-profile-template }}
+
       macos-runner-image: ${{ steps.constants.outputs.macos-runner-image }}
       macos-compiler: ${{ steps.constants.outputs.macos-compiler }}
+      macos-conan-profile-template: ${{ steps.constants.outputs.macos-conan-profile-template }}
+
       conan-preset: ${{ steps.constants.outputs.conan-preset }}
+      action-type: ${{ steps.constants.outputs.action-type }}
     steps:
       - name: 'Define constants'
         id: 'constants'
         run: |
+          CONAN_PROFILE_SUFFIX=${{ github.event_name == 'push' && 'static' || 'debug' }}
+          
           echo "linux-runner-image=ubuntu-24.04" >> $GITHUB_OUTPUT
           echo "linux-compiler=llvm-21" >> $GITHUB_OUTPUT
+          echo "linux-conan-profile=linux-x86_64-${CONAN_PROFILE_SUFFIX}" >> GITHUB_OUTPUT
+          
           echo "macos-runner-image=macos-26" >> $GITHUB_OUTPUT
           echo "macos-compiler=apple-clang-17" >> $GITHUB_OUTPUT
+          echo "macos-conan-profile=macos-arm64-${CONAN_PROFILE_SUFFIX}" >> $GITHUB_OUTPUT
           
           if [[ "${{ github.event_name }}" == "push" ]]; then
             echo "conan-preset=conan-release" >> $GITHUB_OUTPUT
+            echo "action-type=Release" >> $GITHUB_OUTPUT
           else
             echo "conan-preset=conan-debug" >> $GITHUB_OUTPUT
+            echo "action-type=Debug" >> $GITHUB_OUTPUT
           fi
 
   lint-commits:

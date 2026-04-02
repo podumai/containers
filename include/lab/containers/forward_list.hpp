@@ -236,15 +236,15 @@ class [[nodiscard]] ForwardList {
     }
   }
 
-  [[nodiscard]] constexpr auto BeforeBegin() noexcept -> ForwardListBeforeBeginSentinel { return {}; }
+  [[nodiscard]] constexpr auto BeforeBegin() noexcept -> ForwardListBeforeBeginSentinel { return {}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return head_; }
+  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return head_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto end() noexcept -> ForwardListSentinel { return {}; }
+  [[nodiscard]] constexpr auto end() noexcept -> ForwardListSentinel { return {}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return head_; }
+  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return head_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cend() const noexcept -> ForwardListSentinel { return {}; }
+  [[nodiscard]] constexpr auto cend() const noexcept -> ForwardListSentinel { return {}; } // NOLINT: std compatible interface
 
   constexpr auto PushFront(const ValueType& value) -> void { EmplaceFront(value); }
 

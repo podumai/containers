@@ -588,7 +588,7 @@ template<typename T, typename Allocator>
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cend(const List<T, Allocator>& list) noexcept { // NOTLINT: function for use in ADL
+[[nodiscard]] constexpr auto cend(const List<T, Allocator>& list) noexcept { // NOLINT: function for use in ADL
   return list.cend();
 }
 

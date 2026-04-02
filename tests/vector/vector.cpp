@@ -862,7 +862,7 @@ TEST(Vector, Resize) {
 }
 
 TEST(Vector, Reserve) {
-  constexpr auto kReservedElements = int{10};
+  constexpr auto kReservedElements = 10;
   {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_size = empty_vector.Size();

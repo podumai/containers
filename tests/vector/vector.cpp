@@ -751,7 +751,7 @@ TEST(Vector, BackAccess) {
         std::advance(last_element_position, kTestNumbers.size() - 1);
         return *last_element_position;
       }();
-      EXPECT_EQ(result, last_element);
+      EXPECT_EQ(result, kLastElement);
     } else {
       FAIL() << "Non empty vector must not return -> VectorErrors::*";
     }

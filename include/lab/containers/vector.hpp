@@ -290,23 +290,23 @@ class [[nodiscard]] Vector {
     return std::lexicographical_compare_three_way(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
   }
 
-  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return first_; }
+  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return first_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto end() noexcept -> Iterator { return current_; }
+  [[nodiscard]] constexpr auto end() noexcept -> Iterator { return current_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return first_; }
+  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return first_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cend() const noexcept -> ConstIterator { return current_; }
+  [[nodiscard]] constexpr auto cend() const noexcept -> ConstIterator { return current_; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator { return ReverseIterator{current_}; }
+  [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator { return ReverseIterator{current_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto rend() noexcept -> ReverseIterator { return ReverseIterator{first_}; }
+  [[nodiscard]] constexpr auto rend() noexcept -> ReverseIterator { return ReverseIterator{first_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto crbegin() const noexcept -> ConstReverseIterator {
+  [[nodiscard]] constexpr auto crbegin() const noexcept -> ConstReverseIterator { // NOLINT: std compatible interface
     return ConstReverseIterator{current_};
   }
 
-  [[nodiscard]] constexpr auto crend() const noexcept -> ConstReverseIterator { return ConstReverseIterator{first_}; }
+  [[nodiscard]] constexpr auto crend() const noexcept -> ConstReverseIterator { return ConstReverseIterator{first_}; } // NOLINT: std compatible interface
 
   [[nodiscard]] constexpr auto Data() const noexcept -> ConstPointer { return first_; }
 

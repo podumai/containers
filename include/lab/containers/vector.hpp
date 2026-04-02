@@ -570,27 +570,27 @@ class [[nodiscard]] Vector {
 };
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto begin(Vector<T, Allocator>& vector) noexcept {
+[[nodiscard]] constexpr auto begin(Vector<T, Allocator>& vector) noexcept { // NOLINT: std compatible interface
   return vector.begin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto end(Vector<T, Allocator>& vector) noexcept {
+[[nodiscard]] constexpr auto end(Vector<T, Allocator>& vector) noexcept { // NOLINT: std compatible interface
   return vector.end();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cbegin(const Vector<T, Allocator>& vector) noexcept {
+[[nodiscard]] constexpr auto cbegin(const Vector<T, Allocator>& vector) noexcept { // NOLINT: std compatible interface
   return vector.cbegin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cend(const Vector<T, Allocator>& vector) noexcept {
+[[nodiscard]] constexpr auto cend(const Vector<T, Allocator>& vector) noexcept { // NOLINT: std compatible interface
   return vector.cend();
 }
 
 template<typename T, typename Allocator>
-constexpr auto swap(Vector<T, Allocator>& lhs, Vector<T, Allocator>& rhs) noexcept -> void {
+constexpr auto swap(Vector<T, Allocator>& lhs, Vector<T, Allocator>& rhs) noexcept -> void { // NOLINT: std compatible interface
   lhs.Swap(rhs);
 }
 

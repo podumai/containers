@@ -40,6 +40,7 @@ class [[nodiscard]] ForwardListIteratorBase {
   using NodePointer = ForwardListType::NodePointer;
 
  public:
+  // NOLINTBEGIN
   using value_type = ForwardListType::value_type;
   using ValueType = ForwardListType::ValueType;
   using reference =
@@ -52,6 +53,7 @@ class [[nodiscard]] ForwardListIteratorBase {
   using DifferenceType = ForwardListType::DifferenceType;
   using iterator_category = std::forward_iterator_tag;
   using IteratorCategory = iterator_category;
+  // NOLINTEND
 
   constexpr ForwardListIteratorBase() noexcept = default;
 

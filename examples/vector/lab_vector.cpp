@@ -63,19 +63,28 @@ auto PrintRangeSize(const lab::containers::Vector<int>& vector) -> void {
 
 }  // namespace lab::utility
 
+namespace {
+
+constexpr auto kIndexes = {2, 4, 6};
+constexpr auto kFirstInsertValue = 10;
+constexpr auto kMiddleInsertValue = 20;
+constexpr auto kLastInsertValue = 30;
+
+}
+
 auto main() -> int {
   try {
     lab::containers::Vector<int> vector{};
     lab::utility::GenerateRange(vector);
     lab::utility::PrintRange(vector);
     lab::utility::PrintRangeSize(vector);
-    lab::utility::EraseElements(vector, {2, 4, 6});
+    lab::utility::EraseElements(vector, kIndexes);
     lab::utility::PrintRange(vector);
-    lab::utility::InsertFirstElement(vector, 10);
+    lab::utility::InsertFirstElement(vector, kFirstInsertValue);
     lab::utility::PrintRange(vector);
-    lab::utility::InsertMiddleElement(vector, 20);
+    lab::utility::InsertMiddleElement(vector, kMiddleInsertValue);
     lab::utility::PrintRange(vector);
-    lab::utility::InsertLastElement(vector, 30);
+    lab::utility::InsertLastElement(vector, kLastInsertValue);
     lab::utility::PrintRange(vector);
   } catch (std::exception const& error) {
     std::cerr << error.what() << '\n';

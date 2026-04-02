@@ -48,7 +48,7 @@ auto InsertMiddleElement(lab::containers::List<int>& list, const int value) -> v
   auto middle_position{first};
   const auto list_size{std::ranges::distance(first, last)};
   std::ranges::advance(middle_position, list_size >> 1);
-  list.Insert(middle_position, value);
+  (void)list.Insert(middle_position, value);
 }
 
 auto InsertLastElement(lab::containers::List<int>& list, const int value) -> void { list.PushBack(value); }

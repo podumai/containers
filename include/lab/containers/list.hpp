@@ -211,6 +211,7 @@ class [[nodiscard]] List final {
   using NodePointer = NodeType*;
 
  public:
+  // NOLINTBEGIN
   using value_type = T;
   using ValueType = T;
   using reference = value_type&;
@@ -235,6 +236,7 @@ class [[nodiscard]] List final {
   using ReverseIterator = reverse_iterator;
   using const_reverse_iterator = ListReverseIterator<ConstIterator>;
   using ConstReverseIterator = const_reverse_iterator;
+  // NOLINTEND
 
   constexpr List() noexcept = default;
 

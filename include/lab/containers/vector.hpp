@@ -171,6 +171,7 @@ class [[nodiscard]] Vector {
   friend class VectorIteratorBase<true, Vector>;
 
  public:
+  // NOLINTBEGIN
   using value_type = T;
   using ValueType = value_type;
   using reference = T&;
@@ -195,6 +196,7 @@ class [[nodiscard]] Vector {
   using ConstReverseIterator = const_reverse_iterator;
   using allocator_type = Allocator;
   using AllocatorType = allocator_type;
+  // NOLINTEND
 
   constexpr Vector() noexcept = default;
 

@@ -60,17 +60,22 @@ auto PrintRangeSize(const lab::containers::List<int>& list) -> void {
 }  // namespace lab::utility
 
 auto main() -> int {
-  lab::containers::List<int> list{};
-  lab::utility::GenerateRange(list);
-  lab::utility::PrintRange(list);
-  lab::utility::PrintRangeSize(list);
-  lab::utility::EraseElements(list, {2, 4, 6});
-  lab::utility::PrintRange(list);
-  lab::utility::InsertFirstElement(list, 10);
-  lab::utility::PrintRange(list);
-  lab::utility::InsertMiddleElement(list, 20);
-  lab::utility::PrintRange(list);
-  lab::utility::InsertLastElement(list, 30);
-  lab::utility::PrintRange(list);
+  try {
+    lab::containers::List<int> list{};
+    lab::utility::GenerateRange(list);
+    lab::utility::PrintRange(list);
+    lab::utility::PrintRangeSize(list);
+    lab::utility::EraseElements(list, {2, 4, 6});
+    lab::utility::PrintRange(list);
+    lab::utility::InsertFirstElement(list, 10);
+    lab::utility::PrintRange(list);
+    lab::utility::InsertMiddleElement(list, 20);
+    lab::utility::PrintRange(list);
+    lab::utility::InsertLastElement(list, 30);
+    lab::utility::PrintRange(list);
+  } catch (std::exception const& error) {
+    std::cerr << error.what() << '\n';
+    return 1;
+  }
   return 0;
 }

@@ -785,38 +785,40 @@ TEST(Vector, GetAllocator) {
 }
 
 TEST(Vector, PushBack) {
+  constexpr auto kTestValue = 100;
   {
     auto empty_vector = lab::containers::Vector<int>{};
-    empty_vector.PushBack(100);
+    empty_vector.PushBack(kTestValue);
     EXPECT_EQ(empty_vector.Size(), 1);
     EXPECT_NE(empty_vector.Capacity(), 0);
-    EXPECT_EQ(empty_vector[0], 100);
+    EXPECT_EQ(empty_vector[0], kTestValue);
   }
   {
     auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
     const auto previous_size = filled_vector.Size();
-    filled_vector.PushBack(100);
+    filled_vector.PushBack(kTestValue);
     EXPECT_EQ(previous_size + 1, filled_vector.Size());
     EXPECT_NE(filled_vector.Capacity(), 0);
-    EXPECT_EQ(filled_vector[previous_size], 100);
+    EXPECT_EQ(filled_vector[previous_size], kTestValue);
   }
 }
 
 TEST(Vector, EmplaceBack) {
+  constexpr auto kTestValue = 100;
   {
     auto empty_vector = lab::containers::Vector<int>{};
-    empty_vector.EmplaceBack(100);
+    empty_vector.EmplaceBack(kTestValue);
     EXPECT_EQ(empty_vector.Size(), 1);
     EXPECT_NE(empty_vector.Capacity(), 0);
-    EXPECT_EQ(empty_vector[0], 100);
+    EXPECT_EQ(empty_vector[0], kTestValue);
   }
   {
     auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
     const auto previous_size = filled_vector.Size();
-    filled_vector.EmplaceBack(100);
+    filled_vector.EmplaceBack(kTestValue);
     EXPECT_EQ(previous_size + 1, filled_vector.Size());
     EXPECT_NE(filled_vector.Capacity(), 0);
-    EXPECT_EQ(filled_vector[previous_size], 100);
+    EXPECT_EQ(filled_vector[previous_size], kTestValue);
   }
 }
 

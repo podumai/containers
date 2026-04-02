@@ -64,17 +64,22 @@ auto PrintRangeSize(const lab::containers::Vector<int>& vector) -> void {
 }  // namespace lab::utility
 
 auto main() -> int {
-  lab::containers::Vector<int> vector{};
-  lab::utility::GenerateRange(vector);
-  lab::utility::PrintRange(vector);
-  lab::utility::PrintRangeSize(vector);
-  lab::utility::EraseElements(vector, {2, 4, 6});
-  lab::utility::PrintRange(vector);
-  lab::utility::InsertFirstElement(vector, 10);
-  lab::utility::PrintRange(vector);
-  lab::utility::InsertMiddleElement(vector, 20);
-  lab::utility::PrintRange(vector);
-  lab::utility::InsertLastElement(vector, 30);
-  lab::utility::PrintRange(vector);
+  try {
+    lab::containers::Vector<int> vector{};
+    lab::utility::GenerateRange(vector);
+    lab::utility::PrintRange(vector);
+    lab::utility::PrintRangeSize(vector);
+    lab::utility::EraseElements(vector, {2, 4, 6});
+    lab::utility::PrintRange(vector);
+    lab::utility::InsertFirstElement(vector, 10);
+    lab::utility::PrintRange(vector);
+    lab::utility::InsertMiddleElement(vector, 20);
+    lab::utility::PrintRange(vector);
+    lab::utility::InsertLastElement(vector, 30);
+    lab::utility::PrintRange(vector);
+  } catch (std::exception const& error) {
+    std::cerr << error.what() << '\n';
+    return 1;
+  }
   return 0;
 }

@@ -55,64 +55,64 @@ class VectorIteratorBase {
   constexpr auto operator->() const noexcept -> Pointer { return current_; }
 
   constexpr auto operator*() const noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator*(): nullptr dereference");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator*(): nullptr dereference");
     return *current_;
   }
 
   constexpr auto operator++() noexcept -> VectorIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator++(): nullptr dereference");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator++(): nullptr dereference");
     ++current_;
     return *this;
   }
 
   constexpr auto operator++(int) noexcept -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator++(int): nullptr dereference");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator++(int): nullptr dereference");
     VectorIteratorBase previous{*this};
     ++current_;
     return previous;
   }
 
   constexpr auto operator--() noexcept -> VectorIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator--(): nullptr dereference");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator--(): nullptr dereference");
     --current_;
     return *this;
   }
 
   constexpr auto operator--(int) noexcept -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator--(int): nullptr dereference)");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator--(int): nullptr dereference)");
     VectorIteratorBase previous{*this};
     --current_;
     return previous;
   }
 
   constexpr auto operator+=(const DifferenceType offset) noexcept -> VectorIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: binary operator+= called on invalid instance");
+    utility::labContainersAssert(current_, "Undefined behaviour: binary operator+= called on invalid instance");
     current_ += offset;
     return *this;
   }
 
   [[nodiscard]] friend constexpr auto operator+(const VectorIteratorBase iterator, const DifferenceType offset) noexcept
     -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(iterator.current_, "Undefined behaviour: binary operator+ called on invalid instance");
+   utility::labContainersAssert(iterator.current_, "Undefined behaviour: binary operator+ called on invalid instance");
     return iterator.current_ + offset;
   }
 
   [[nodiscard]] friend constexpr auto operator+(const DifferenceType offset, const VectorIteratorBase iterator) noexcept
     -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(iterator.current_, "Undefined behaviour: binary operator+ called on invalid instance");
+    utility::labContainersAssert(iterator.current_, "Undefined behaviour: binary operator+ called on invalid instance");
     return iterator.current_ + offset;
   }
 
   friend constexpr auto operator-=(VectorIteratorBase& iterator, const DifferenceType offset) noexcept
     -> VectorIteratorBase& {
-    LAB_CONTAINERS_ASSERT(iterator.current_, "Undefined behaviour: binary operator-= called on invalid instance");
+    utility::labContainersAssert(iterator.current_, "Undefined behaviour: binary operator-= called on invalid instance");
     iterator.current_ -= offset;
     return iterator;
   }
 
   [[nodiscard]] friend constexpr auto operator-(const VectorIteratorBase iterator, const DifferenceType offset) noexcept
     -> VectorIteratorBase {
-    LAB_CONTAINERS_ASSERT(iterator.current_, "Undefined behaviour: binary operator- called on invalid instance");
+    utility::labContainersAssert(iterator.current_, "Undefined behaviour: binary operator- called on invalid instance");
     return iterator.current_ - offset;
   }
 
@@ -122,7 +122,7 @@ class VectorIteratorBase {
   }
 
   [[nodiscard]] constexpr auto operator[](const DifferenceType index) const noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: VectorIteratorBase::operator[] const: nullptr dereference");
+    utility::labContainersAssert(current_, "Undefined behaviour: VectorIteratorBase::operator[] const: nullptr dereference");
     return current_[index];
   }
 
@@ -339,12 +339,12 @@ class [[nodiscard]] Vector {
   }
 
   [[nodiscard]] constexpr auto operator[](const SizeType index) noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::operator[]: called on empty vector");
+    utility::labContainersAssert(!Empty(), "Undefined behaviour: Vector::operator[]: called on empty vector");
     return first_[index];
   }
 
   [[nodiscard]] constexpr auto operator[](const SizeType index) const noexcept -> ConstReference {
-    LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::operator[] const: called on empty vector");
+    utility::labContainersAssert(!Empty(), "Undefined behaviour: Vector::operator[] const: called on empty vector");
     return first_[index];
   }
 
@@ -427,7 +427,7 @@ class [[nodiscard]] Vector {
   }
 
   constexpr auto PopBack() -> void {
-    LAB_CONTAINERS_ASSERT(!Empty(), "Undefined behaviour: Vector::PopBack(): called on empty vector");
+    utility::labContainersAssert(!Empty(), "Undefined behaviour: Vector::PopBack(): called on empty vector");
     AllocatorTraits::destroy(allocator_, --current_);
   }
 
@@ -554,7 +554,7 @@ class [[nodiscard]] Vector {
   }
 
   constexpr auto Swap(Vector& other) noexcept -> void {
-    LAB_CONTAINERS_ASSERT(this != &other, "Undefined behaviour: Vector::Swap(): self swap detected");
+    utility::labContainersAssert(this != &other, "Undefined behaviour: Vector::Swap(): self swap detected");
     std::swap(first_, other.first_);
     std::swap(current_, other.current_);
     std::swap(last_, other.last_);

@@ -180,13 +180,14 @@ TEST_CASE("ForwardList: Swap function test") {
 }
 
 TEST_CASE("ForwardList: Constexpr test") {
-  constexpr auto front_value = [] consteval -> int {
+  constexpr auto kExpectedFrontValue = 120;
+  constexpr auto kFrontValue = [kExpectedFrontValue] consteval -> int {
     auto list = lab::containers::ForwardList<int>{};
-    list.PushFront(120);
+    list.PushFront(kExpectedFrontValue);
     auto result = list.Front();
     return result.value();
   }();
-  REQUIRE(front_value == 120);
+  REQUIRE(kFrontValue == kExpectedFrontValue);
 }
 
 TEST_CASE("ForwardList: Empty method test") {

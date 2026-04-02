@@ -31,6 +31,7 @@ class VectorIteratorBase {
   using InternalPointer = VectorType::ValueType*;
 
  public:
+  // NOLINTBEGIN
   using value_type = VectorType::value_type;
   using ValueType = VectorType::ValueType;
   using reference = std::conditional_t<IsConst, typename VectorType::const_reference, typename VectorType::reference>;
@@ -41,6 +42,7 @@ class VectorIteratorBase {
   using DifferenceType = VectorType::DifferenceType;
   using iterator_category = std::contiguous_iterator_tag;
   using IteratorCategory = iterator_category;
+  // NOLINTEND
 
   constexpr VectorIteratorBase() noexcept = default;
 

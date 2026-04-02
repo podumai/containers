@@ -746,7 +746,7 @@ TEST(Vector, BackAccess) {
     const auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
     const auto result = filled_vector.Back();
     if (result) {
-      constexpr auto last_element = [] [[nodiscard]] consteval noexcept {
+      constexpr auto kLastElement = [] [[nodiscard]] consteval noexcept {
         auto last_element_position = kTestNumbers.begin();
         std::advance(last_element_position, kTestNumbers.size() - 1);
         return *last_element_position;

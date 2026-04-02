@@ -1026,16 +1026,16 @@ TEST(Vector, InsertMiddle) {
 }
 
 TEST(Vector, InsertEnd) {
-  constexpr auto kInsertValue = int{-1};
+  constexpr auto kInsertValue = -1;
   {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();
     empty_vector.Insert(empty_vector.cend(), kInsertValue);
-    EXPECT_EQ(empty_vector.Size(), 1);
-    EXPECT_NE(empty_vector.Capacity(), previous_capacity);
+    EXPECT_EQ(empty_vector.Size(), 1); // NOLINT
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity); // NOLINT
     const auto result = empty_vector.Front();
     if (result) {
-      EXPECT_EQ(result.value().get(), kInsertValue);
+      EXPECT_EQ(result.value().get(), kInsertValue); // NOLINT
     } else {
       FAIL();
     }
@@ -1045,11 +1045,11 @@ TEST(Vector, InsertEnd) {
     const auto previous_size = filled_vector.Size();
     const auto previous_capacity = filled_vector.Capacity();
     filled_vector.Insert(filled_vector.cend(), kInsertValue);
-    EXPECT_EQ(filled_vector.Size(), previous_size + 1);
-    EXPECT_NE(filled_vector.Capacity(), previous_capacity);
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1); // NOLINT
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity); // NOLINT
     const auto result = filled_vector.Back();
     if (result) {
-      EXPECT_EQ(result.value().get(), kInsertValue);
+      EXPECT_EQ(result.value().get(), kInsertValue); // NOLINT
     } else {
       FAIL();
     }

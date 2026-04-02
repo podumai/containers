@@ -1070,6 +1070,7 @@ TEST(Vector, Swap) {
 
   empty_vector.Swap(filled_vector);
 
+  // NOLINTBEGIN
   EXPECT_EQ(empty_vector.Data(), previous_filled_data);
   EXPECT_EQ(empty_vector.Size(), previous_filled_size);
   EXPECT_EQ(empty_vector.Capacity(), previous_filled_capacity);
@@ -1077,10 +1078,11 @@ TEST(Vector, Swap) {
   EXPECT_EQ(filled_vector.Data(), previous_empty_data);
   EXPECT_EQ(filled_vector.Size(), previous_empty_size);
   EXPECT_EQ(filled_vector.Capacity(), previous_empty_capacity);
+  // NOLINTEND
 
   if constexpr (std::allocator_traits<
                   typename lab::containers::Vector<int>::AllocatorType>::propagate_on_container_swap::value) {
-    EXPECT_EQ(empty_vector.GetAllocator(), filled_vector.GetAllocator());
+    EXPECT_EQ(empty_vector.GetAllocator(), filled_vector.GetAllocator()); // NOLINT
   }
 }
 
@@ -1102,12 +1104,12 @@ TEST(Vector, CustomAllocator) {
     FAIL();
   }
 
-  EXPECT_EQ(test_vector.Size(), 1);
-  EXPECT_NE(test_vector.Capacity(), previous_capacity);
+  EXPECT_EQ(test_vector.Size(), 1); // NOLINT
+  EXPECT_NE(test_vector.Capacity(), previous_capacity); // NOLINT
   const auto result = test_vector.Front();
   if (result) {
-    EXPECT_EQ(result.value().get(), kTestValue);
+    EXPECT_EQ(result.value().get(), kTestValue); // NOLINT
   } else {
-    FAIL();
+    FAIL(); // NOLINT
   }
 }

@@ -573,27 +573,27 @@ class [[nodiscard]] List final {
 };
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto begin(List<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto begin(List<T, Allocator>& list) noexcept { // NOLINT: function for use in ADL
   return list.begin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto end(List<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto end(List<T, Allocator>& list) noexcept { // NOLINT: function for use in ADL
   return list.end();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cbegin(const List<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto cbegin(const List<T, Allocator>& list) noexcept { // NOLINT: function for use in ADL
   return list.cbegin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cend(const List<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto cend(const List<T, Allocator>& list) noexcept { // NOTLINT: function for use in ADL
   return list.cend();
 }
 
 template<typename T, typename Allocator>
-constexpr auto swap(List<T, Allocator>& lhs, List<T, Allocator>& rhs) noexcept -> void {
+constexpr auto swap(List<T, Allocator>& lhs, List<T, Allocator>& rhs) noexcept -> void { // NOLINT: function for use in ADL
   lhs.Swap(rhs);
 }
 

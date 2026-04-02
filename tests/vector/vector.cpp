@@ -1009,11 +1009,12 @@ TEST(Vector, InsertFront) {
 }
 
 TEST(Vector, InsertMiddle) {
-  constexpr auto kInsertValue = int{20};
+  constexpr auto kInsertValue = 20;
   auto filled_vector = lab::containers::Vector<int>{kTestNumbers};
   const auto previous_size = filled_vector.Size();
   const auto previous_capacity = filled_vector.Capacity();
-  auto insert_position = filled_vector.cbegin() + (filled_vector.Size() >> 1);
+  auto insert_position =
+    filled_vector.cbegin() + static_cast<decltype(filled_vector)::DifferenceType>(filled_vector.Size() >> 1);
   filled_vector.Insert(insert_position, kInsertValue);
   EXPECT_EQ(filled_vector.Size(), previous_size + 1);
   EXPECT_NE(filled_vector.Capacity(), previous_capacity);
@@ -1031,11 +1032,11 @@ TEST(Vector, InsertEnd) {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();
     empty_vector.Insert(empty_vector.cend(), kInsertValue);
-    EXPECT_EQ(empty_vector.Size(), 1); // NOLINT
-    EXPECT_NE(empty_vector.Capacity(), previous_capacity); // NOLINT
+    EXPECT_EQ(empty_vector.Size(), 1);                      // NOLINT
+    EXPECT_NE(empty_vector.Capacity(), previous_capacity);  // NOLINT
     const auto result = empty_vector.Front();
     if (result) {
-      EXPECT_EQ(result.value().get(), kInsertValue); // NOLINT
+      EXPECT_EQ(result.value().get(), kInsertValue);  // NOLINT
     } else {
       FAIL();
     }
@@ -1045,11 +1046,11 @@ TEST(Vector, InsertEnd) {
     const auto previous_size = filled_vector.Size();
     const auto previous_capacity = filled_vector.Capacity();
     filled_vector.Insert(filled_vector.cend(), kInsertValue);
-    EXPECT_EQ(filled_vector.Size(), previous_size + 1); // NOLINT
-    EXPECT_NE(filled_vector.Capacity(), previous_capacity); // NOLINT
+    EXPECT_EQ(filled_vector.Size(), previous_size + 1);      // NOLINT
+    EXPECT_NE(filled_vector.Capacity(), previous_capacity);  // NOLINT
     const auto result = filled_vector.Back();
     if (result) {
-      EXPECT_EQ(result.value().get(), kInsertValue); // NOLINT
+      EXPECT_EQ(result.value().get(), kInsertValue);  // NOLINT
     } else {
       FAIL();
     }
@@ -1082,7 +1083,7 @@ TEST(Vector, Swap) {
 
   if constexpr (std::allocator_traits<
                   typename lab::containers::Vector<int>::AllocatorType>::propagate_on_container_swap::value) {
-    EXPECT_EQ(empty_vector.GetAllocator(), filled_vector.GetAllocator()); // NOLINT
+    EXPECT_EQ(empty_vector.GetAllocator(), filled_vector.GetAllocator());  // NOLINT
   }
 }
 
@@ -1104,12 +1105,12 @@ TEST(Vector, CustomAllocator) {
     FAIL();
   }
 
-  EXPECT_EQ(test_vector.Size(), 1); // NOLINT
-  EXPECT_NE(test_vector.Capacity(), previous_capacity); // NOLINT
+  EXPECT_EQ(test_vector.Size(), 1);                      // NOLINT
+  EXPECT_NE(test_vector.Capacity(), previous_capacity);  // NOLINT
   const auto result = test_vector.Front();
   if (result) {
-    EXPECT_EQ(result.value().get(), kTestValue); // NOLINT
+    EXPECT_EQ(result.value().get(), kTestValue);  // NOLINT
   } else {
-    FAIL(); // NOLINT
+    FAIL();  // NOLINT
   }
 }

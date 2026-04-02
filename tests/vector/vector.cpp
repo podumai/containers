@@ -1085,9 +1085,10 @@ TEST(Vector, Swap) {
 }
 
 TEST(Vector, CustomAllocator) {
-  constexpr auto kTestValue = int{100};
+  constexpr auto kTestValue{100};
+  constexpr auto kArraySize{1000};
 
-  auto buffer = std::array<unsigned char, 1000>{};
+  auto buffer = std::array<unsigned char, kArraySize>{};
   auto monotonic_resource =
     std::pmr::monotonic_buffer_resource{buffer.data(), buffer.size(), std::pmr::null_memory_resource()};
   auto allocator = std::pmr::polymorphic_allocator<int>{&monotonic_resource};

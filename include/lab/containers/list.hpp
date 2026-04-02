@@ -50,6 +50,7 @@ class [[nodiscard]] ListIteratorBase {
   using NodePointer = ListType::NodeType*;
 
  public:
+  // NOLINTBEGIN
   using value_type = ListType::value_type;
   using ValueType = ListType::ValueType;
   using reference = std::conditional_t<IsConst, typename ListType::const_reference, typename ListType::reference>;
@@ -60,6 +61,7 @@ class [[nodiscard]] ListIteratorBase {
   using DifferenceType = ListType::DifferenceType;
   using iterator_category = std::bidirectional_iterator_tag;
   using IteratorCategory = iterator_category;
+  // NOLINTEND
 
   constexpr ListIteratorBase() noexcept = default;
 

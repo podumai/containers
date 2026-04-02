@@ -949,7 +949,7 @@ TEST(Vector, EmplaceMiddle) {
 }
 
 TEST(Vector, EmplaceEnd) {
-  constexpr auto kEmplaceValue = int{100};
+  constexpr auto kEmplaceValue = 100;
   {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();

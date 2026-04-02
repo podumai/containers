@@ -124,6 +124,7 @@ class [[nodiscard]] ForwardList {
   using NodePointer = details::ForwardListNode<T>*;
 
  public:
+  // NOLINTBEGIN
   using value_type = T;
   using ValueType = T;
   using reference = value_type&;
@@ -144,6 +145,7 @@ class [[nodiscard]] ForwardList {
   using Iterator = iterator;
   using const_iterator = ForwardListIteratorBase<true, ForwardList>;
   using ConstIterator = const_iterator;
+  // NOLINTEND
 
   constexpr ForwardList() noexcept = default;
 

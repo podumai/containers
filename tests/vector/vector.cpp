@@ -978,7 +978,7 @@ TEST(Vector, EmplaceEnd) {
 }
 
 TEST(Vector, InsertFront) {
-  constexpr auto kInsertValue = int{100};
+  constexpr auto kInsertValue = 100;
   {
     auto empty_vector = lab::containers::Vector<int>{};
     const auto previous_capacity = empty_vector.Capacity();

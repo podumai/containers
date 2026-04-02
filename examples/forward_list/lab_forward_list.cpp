@@ -52,7 +52,7 @@ auto InsertMiddleElement(lab::containers::ForwardList<int>& list, const int valu
   auto middle_position{first};
   const auto list_size{std::ranges::distance(first, last)};
   std::ranges::advance(middle_position, (list_size >> 1) - 1);
-  list.InsertAfter(middle_position, value);
+  (void)list.InsertAfter(middle_position, value);
 }
 
 auto InsertLastElement(lab::containers::ForwardList<int>& list, const int value) -> void {
@@ -61,7 +61,7 @@ auto InsertLastElement(lab::containers::ForwardList<int>& list, const int value)
   auto last_valid_position{first};
   const auto list_size{std::ranges::distance(first, last)};
   std::ranges::advance(last_valid_position, list_size - 1);
-  list.InsertAfter(last_valid_position, value);
+  (void)list.InsertAfter(last_valid_position, value);
 }
 
 auto PrintRangeSize(const lab::containers::ForwardList<int>& list) -> void {

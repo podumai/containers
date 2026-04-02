@@ -393,27 +393,27 @@ class [[nodiscard]] ForwardList {
 };
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto begin(ForwardList<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto begin(ForwardList<T, Allocator>& list) noexcept { // NOLINT: std compatible interface
   return list.begin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto end(ForwardList<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto end(ForwardList<T, Allocator>& list) noexcept { // NOLINT: std compatible interface
   return list.end();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cbegin(const ForwardList<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto cbegin(const ForwardList<T, Allocator>& list) noexcept { // NOLINT: std compatible interface
   return list.cbegin();
 }
 
 template<typename T, typename Allocator>
-[[nodiscard]] constexpr auto cend(const ForwardList<T, Allocator>& list) noexcept {
+[[nodiscard]] constexpr auto cend(const ForwardList<T, Allocator>& list) noexcept { // NOLINT: std compatible interface
   return list.cend();
 }
 
 template<typename T, typename Allocator>
-constexpr auto swap(ForwardList<T, Allocator>& lhs, ForwardList<T, Allocator>& rhs) noexcept -> void {
+constexpr auto swap(ForwardList<T, Allocator>& lhs, ForwardList<T, Allocator>& rhs) noexcept -> void { // NOLINT: std compatible interface
   lhs.Swap(rhs);
 }
 

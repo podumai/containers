@@ -399,21 +399,21 @@ class [[nodiscard]] List final {
   }
 
  public:
-  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return {proxy_node_->head_}; }
+  [[nodiscard]] constexpr auto begin() noexcept -> Iterator { return {proxy_node_->head_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto end() noexcept -> ListSentinel { return {}; }
+  [[nodiscard]] constexpr auto end() noexcept -> ListSentinel { return {}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return {proxy_node_->head_}; }
+  [[nodiscard]] constexpr auto cbegin() const noexcept -> ConstIterator { return {proxy_node_->head_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto cend() const noexcept -> ListSentinel { return {}; }
+  [[nodiscard]] constexpr auto cend() const noexcept -> ListSentinel { return {}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator { return {proxy_node_->tail_}; }
+  [[nodiscard]] constexpr auto rbegin() noexcept -> ReverseIterator { return {proxy_node_->tail_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto rend() noexcept -> ListSentinel { return {}; }
+  [[nodiscard]] constexpr auto rend() noexcept -> ListSentinel { return {}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto crbegin() const noexcept -> ConstReverseIterator { return {proxy_node_->tail_}; }
+  [[nodiscard]] constexpr auto crbegin() const noexcept -> ConstReverseIterator { return {proxy_node_->tail_}; } // NOLINT: std compatible interface
 
-  [[nodiscard]] constexpr auto crend() const noexcept -> ListSentinel { return {}; }
+  [[nodiscard]] constexpr auto crend() const noexcept -> ListSentinel { return {}; } // NOLINT: std compatible interface
 
   constexpr auto Clear() -> void {
     if (proxy_node_) {

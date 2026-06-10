@@ -16,11 +16,11 @@ jobs:
     outputs:
       linux-runner-image: ${{ steps.constants.outputs.linux-runner-image }}
       linux-compiler: ${{ steps.constants.outputs.linux-compiler }}
-      linux-conan-profile-template: ${{ steps.constants.outputs.linux-conan-profile-template }}
+      linux-conan-profile: ${{ steps.constants.outputs.linux-conan-profile }}
 
       macos-runner-image: ${{ steps.constants.outputs.macos-runner-image }}
       macos-compiler: ${{ steps.constants.outputs.macos-compiler }}
-      macos-conan-profile-template: ${{ steps.constants.outputs.macos-conan-profile-template }}
+      macos-conan-profile: ${{ steps.constants.outputs.macos-conan-profile }}
 
       conan-preset: ${{ steps.constants.outputs.conan-preset }}
       action-type: ${{ steps.constants.outputs.action-type }}
@@ -73,11 +73,43 @@ jobs:
             npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
           fi
 
+  find-changes:
+    runs-on: ${{ needs.config.outputs.linux-runner-image }}
+    permissions:
+      contents: 'read'
+    needs: [ 'config', 'lint-commits' ]
+    outputs:
+      cpp-changed: ${{ steps.changes.outputs.cpp }}
+      cmake-changed: ${{ steps.changes.outputs.cmake }}
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+
+      - name: 'Find changes'
+        id: 'changes'
+        uses: 'dorny/paths-filter@v4'
+        with:
+          filters: |
+            cpp:
+              - added|modified:
+                - './**/*.cpp'
+                - './**/*.cc'
+                - './**/*.cppm'
+                - './**/*.ixx'
+                - './**/*.hpp'
+                - './**/*.hxx'
+                - './**/*.h'
+            
+            cmake:
+              - added|modified:
+                - './**/CMakeLists.txt
+
   lint-cmake:
     runs-on: ${{ needs.config.outputs.linux-runner-image }}
     permissions:
       contents: 'read'
-    needs: [ 'config' ]
+    needs: [ 'config', 'find-changes' ]
+    if: needs.find-changes.outputs.cmake-changed == true
     steps:
       - name: 'Clone the repository'
         uses: 'actions/checkout@v6'

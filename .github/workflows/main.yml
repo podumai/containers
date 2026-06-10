@@ -102,7 +102,7 @@ jobs:
             
             cmake:
               - added|modified:
-                - './**/CMakeLists.txt
+                - './**/CMakeLists.txt'
 
   lint-cmake:
     runs-on: ${{ needs.config.outputs.linux-runner-image }}

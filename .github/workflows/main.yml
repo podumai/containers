@@ -231,6 +231,7 @@ jobs:
         with:
           path: ${{ env.CONAN_CONFIG_HOME }}
           key: conan-${{ runner.os }}-${{ github.run_id }}
+
   test:
     runs-on: ${{ matrix.os }}
     permissions:
@@ -273,3 +274,33 @@ jobs:
 
       - name: 'Run tests'
         run: ctest --preset ${{ needs.config.outputs.conan-preset }}
+
+  archive:
+    runs-on: ${{ needs.config.outputs.linux-runner-image }}
+    permissions: { }
+    needs: [ 'config', 'test' ]
+    if: github.event_name == 'push'
+    steps:
+      - name: 'Download Linux build artifacts'
+        uses: 'actions/download-artifact@v4'
+        with:
+          path: artifacts
+          pattern: build-archive-*
+
+      - name: 'Prepare Linux assets'
+        run: |
+          mkdir -p Linux
+          tar -xzf artifacts/build-archive-Linux-${{ github.run_id }}/build-archive-*.tar.gz -C Linux
+          tar -czf linux-x86_64.tar.gz -C Linux/build/${{ needs.config.outputs.action-type}}/bin .
+
+      - name: 'Prepare macOS assets'
+        run: |
+          mkdir -p macOS
+          tar -xzf artifacts/build-archive-macOS-${{ github.run_id }}/build-archive-*.tar.gz -C macOS
+          tar -czf macos-arm64.tar.gz -C macOS/build/${{ needs.config.outputs.action-type }}/bin .
+
+      - name: 'Upload release artifacts'
+        uses: 'actions/upload-artifact@v4'
+        with:
+          name: release-assets-${{ github.run_id }}
+          path: ./*.tar.gz

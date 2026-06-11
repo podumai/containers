@@ -121,3 +121,34 @@ jobs:
 
       - name: 'Run cmake-lint'
         run: cmake-lint -c .cmake-format.py ./**/CMakeLists.txt
+
+  lint-cpp:
+    runs-on: ${{ needs.config.outputs.linux-runner-image }}
+    permissions:
+      contents: 'read'
+    needs: [ 'config', 'find-changes' ]
+    if: needs.find-changes.outputs.cpp-changed == true
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+
+      - name: 'Setup C++ dependencies'
+        uses: 'aminya/setup-cpp@v1'
+        with:
+          compiler: ${{ needs.config.outputs.linux-compiler }}
+          clang-tidy: true
+          ninja: true
+          conan: true
+
+      - name: 'Install project dependencies'
+        run: >
+          conan install .
+          --build=missing
+          --profile:all=${{ needs.config.outputs.linux-conan-profile }}
+          -s:a build_type=${{ needs.config.outupts.action-type }}
+
+      - name: 'Configure project'
+        run: cmake --preset ${{ needs.config.outputs.conan-preset }} -D CMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+      - name: 'Lint cpp sources'
+        run: run-clang-tidy -config-file .clang-tidy -p build/${{ needs.config.outputs.action-type }}

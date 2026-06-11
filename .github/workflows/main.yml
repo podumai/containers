@@ -212,12 +212,12 @@ jobs:
         run: cmake --build --preset ${{ needs.config.outputs.conan-preset }}
 
       - name: 'Archive complete build artifacts'
-        run: tar -czf build-archive-${{ runner.os }}.tar.gz CMakeUserPresets.json build
+        run: tar -czf build-archive-${{ github.run_id }}-${{ runner.os }}.tar.gz CMakeUserPresets.json build
 
       - name: 'Upload complete build archive'
         uses: 'actions/upload-artifact@v4'
         with:
-          name: build-archive-${{ runner.os }}-${{ github.run_id }}
+          name: build-archive-${{ github.run_id }}-${{ runner.os }}
           path: build-archive-${{ runner.os }}.tar.gz
           retention-days: 1
           overwrite: true
@@ -267,7 +267,7 @@ jobs:
       - name: 'Download build artifacts'
         uses: 'actions/download-artifact@v4'
         with:
-          name: build-archive-${{ runner.os }}-${{ github.run_id }}
+          name: build-archive-${{ github.run_id }}-${{ runner.os }}
 
       - name: 'Unarchive build artifacts'
         run: tar -xzf build-archive-${{ runner.os }}.tar.gz
@@ -285,18 +285,18 @@ jobs:
         uses: 'actions/download-artifact@v4'
         with:
           path: artifacts
-          pattern: build-archive-*
+          pattern: build-archive-${{ github.run_id }}-*
 
       - name: 'Prepare Linux assets'
         run: |
           mkdir -p Linux
-          tar -xzf artifacts/build-archive-Linux-${{ github.run_id }}/build-archive-*.tar.gz -C Linux
+          tar -xzf artifacts/build-archive-${{ github.run_id }}-Linux/build-archive-*.tar.gz -C Linux
           tar -czf linux-x86_64.tar.gz -C Linux/build/${{ needs.config.outputs.action-type}}/bin .
 
       - name: 'Prepare macOS assets'
         run: |
           mkdir -p macOS
-          tar -xzf artifacts/build-archive-macOS-${{ github.run_id }}/build-archive-*.tar.gz -C macOS
+          tar -xzf artifacts/build-archive-${{ github.run_id }}-macOS/build-archive-*.tar.gz -C macOS
           tar -czf macos-arm64.tar.gz -C macOS/build/${{ needs.config.outputs.action-type }}/bin .
 
       - name: 'Upload release artifacts'
@@ -304,3 +304,33 @@ jobs:
         with:
           name: release-assets-${{ github.run_id }}
           path: ./*.tar.gz
+
+  release:
+    runs-on: ${{ needs.config.outputs.linux-runner-image }}
+    permissions:
+      contents: 'write'
+    needs: [ 'config', 'archive' ]
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+        with:
+          fetch-depth: 0
+
+      - name: 'Bump version and push tag'
+        id: 'bump-version'
+        uses: 'mathieudutour/github-tag-action@v6.2'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 'Download archived release executables'
+        uses: 'actions/download-artifact@v4'
+        with:
+          name: release-assets-${{ github.run_id }}
+
+      - name: 'Create GitHub release'
+        uses: 'ncipollo/release-action@v1'
+        with:
+          tag: ${{ steps.bump-version.outputs.new_tag }}
+          name: Release ${{ steps.bump-version.outputs.new_tag }}
+          body: ${{ steps.bump-version.outputs.changelog }}
+          artifacts: ./*.tar.gz

@@ -72,36 +72,36 @@ class [[nodiscard]] ListIteratorBase {
   constexpr ~ListIteratorBase() = default;
 
   constexpr auto operator->() const noexcept -> Pointer {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator->(): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator->(): nullptr dereference");
     return &current_->value_;
   }
 
   [[nodiscard]] constexpr auto operator*() const noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator*(): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator*(): nullptr dereference");
     return current_->value_;
   }
 
   constexpr auto operator++() noexcept -> ListIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator++(): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator++(): nullptr dereference");
     current_ = current_->next_;
     return *this;
   }
 
   constexpr auto operator++(int) noexcept -> ListIteratorBase {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator++(int): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator++(int): nullptr dereference");
     ListIteratorBase previous{*this};
     current_ = current_->next_;
     return previous;
   }
 
   constexpr auto operator--() noexcept -> ListIteratorBase& {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator--(): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator--(): nullptr dereference");
     current_ = current_->prev_;
     return *this;
   }
 
   constexpr auto operator--(int) noexcept -> ListIteratorBase {
-    LAB_CONTAINERS_ASSERT(current_, "Undefined behaviour: ListIteratorBase::operator--(int): nullptr dereference");
+    utility::LabContainersAssert(current_, "Undefined behaviour: ListIteratorBase::operator--(int): nullptr dereference");
     ListIteratorBase previous{*this};
     current_ = current_->prev_;
     return previous;
@@ -164,7 +164,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
   using ListIterator::ListIterator;
 
   constexpr auto operator++() noexcept -> ListReverseIterator& {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator++(): out of range"
     );
     Base::operator--();
@@ -172,7 +172,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
   }
 
   constexpr auto operator++(int) noexcept -> ListReverseIterator {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator++(int): out of range"
     );
     ListReverseIterator previous{*this};
@@ -181,7 +181,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
   }
 
   constexpr auto operator--() noexcept -> ListReverseIterator& {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator--(): out of range"
     );
     Base::operator++();
@@ -189,7 +189,7 @@ class [[nodiscard]] ListReverseIterator final : public ListIterator {
   }
 
   constexpr auto operator--(int) noexcept -> ListReverseIterator {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       *this != ListSentinel{}, "Undefined behaviour: ListReverseIterator::operator--(int): out of range"
     );
     ListReverseIterator previous{*this};
@@ -296,7 +296,7 @@ class [[nodiscard]] List final {
   constexpr ~List() { Clear(); }
 
   constexpr auto operator=(List&& other) noexcept -> List& {
-    LAB_CONTAINERS_ASSERT(this != &other, "List::operator=(List&&): self move operation");
+    utility::LabContainersAssert(this != &other, "List::operator=(List&&): self move operation");
     Clear();
     proxy_node_ = std::move(other.proxy_node_);
     size_ = std::exchange(other.size_, 0);
@@ -307,7 +307,7 @@ class [[nodiscard]] List final {
   }
 
   constexpr auto operator=(const List& other) -> List& {
-    LAB_CONTAINERS_ASSERT(this != &other, "List::operator=(const List&): self copy operation");
+    utility::LabContainersAssert(this != &other, "List::operator=(const List&): self copy operation");
     List{other}.Swap(*this);
     return *this;
   }
@@ -325,7 +325,7 @@ class [[nodiscard]] List final {
   constexpr auto PushFront(ValueType&& value) -> void { EmplaceFront(std::move(value)); }
 
   constexpr auto EmplaceFront(auto&&... args) -> void {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::EmplaceFront(): called on list in moved-from state");
+    utility::LabContainersAssert(static_cast<bool>(proxy_node_), "Undefined behaviour: List::EmplaceFront(): called on list in moved-from state");
     NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (proxy_node_->head_) [[likely]] {
       list_node->next_ = proxy_node_->head_;
@@ -343,7 +343,7 @@ class [[nodiscard]] List final {
   constexpr auto PushBack(ValueType&& value) -> void { EmplaceBack(std::move(value)); }
 
   constexpr auto EmplaceBack(auto&&... args) -> void {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::EmplaceBack(): called on list in moved-from state");
+    utility::LabContainersAssert(static_cast<bool>(proxy_node_), "Undefined behaviour: List::EmplaceBack(): called on list in moved-from state");
     NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (proxy_node_->tail_) [[likely]] {
       proxy_node_->tail_->next_ = list_node;
@@ -357,8 +357,8 @@ class [[nodiscard]] List final {
   }
 
   constexpr auto PopFront() -> void {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::PopFront(): called on list in moved-from state");
-    LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::PopFront(): called on empty list");
+    utility::LabContainersAssert(proxy_node_, "Undefined behaviour: List::PopFront(): called on list in moved-from state");
+    utility::LabContainersAssert(proxy_node_->head_, "Undefined behaviour: List::PopFront(): called on empty list");
     NodePointer list_node{proxy_node_->head_};
     proxy_node_->head_ = list_node->next_;
     if (proxy_node_->tail_ != list_node) [[likely]] {
@@ -371,8 +371,8 @@ class [[nodiscard]] List final {
   }
 
   constexpr auto PopBack() -> void {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::PopBack(): called on list in moved-from state");
-    LAB_CONTAINERS_ASSERT(proxy_node_->tail_, "Undefined behaviour: List::PopBack(): called on empty list");
+    utility::LabContainersAssert(proxy_node_, "Undefined behaviour: List::PopBack(): called on list in moved-from state");
+    utility::LabContainersAssert(proxy_node_->tail_, "Undefined behaviour: List::PopBack(): called on empty list");
     NodePointer list_node{proxy_node_->tail_};
     proxy_node_->tail_ = list_node->prev_;
     if (proxy_node_->head_ != list_node) [[likely]] {
@@ -478,9 +478,9 @@ class [[nodiscard]] List final {
   }
 
   constexpr auto Emplace(ConstIterator position, auto&&... args) -> Iterator {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::Emplace(): called on list in moved-from state");
+    utility::LabContainersAssert(static_cast<bool>(proxy_node_), "Undefined behaviour: List::Emplace(): called on list in moved-from state");
 #ifdef LAB_CONTAINERS_LIST_ITERATOR_RANGE_CHECK
-    LAB_CONTAINERS_ASSERT(IteratorRangeCheck(position), "Undefined behaviour: List::Emplace(): iterator not in range");
+    utility::LabContainersAssert(IteratorRangeCheck(position), "Undefined behaviour: List::Emplace(): iterator not in range");
 #endif
     NodePointer list_node{ConstructNode(std::forward<decltype(args)>(args)...)};
     if (position.current_) [[likely]] {
@@ -512,10 +512,10 @@ class [[nodiscard]] List final {
   }
 
   constexpr auto Erase(ConstIterator position) -> void {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::Erase(): called on list in moved-from state");
-    LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::Erase(): called on empty list");
+    utility::LabContainersAssert(static_cast<bool>(proxy_node_), "Undefined behaviour: List::Erase(): called on list in moved-from state");
+    utility::LabContainersAssert(proxy_node_->head_, "Undefined behaviour: List::Erase(): called on empty list");
 #ifdef LAB_CONTAINERS_LIST_ITERATOR_RANGE_CHECK
-    LAB_CONTAINERS_ASSERT(IteratorRangeCheck(iterator), "Undefined behaviour: List::Erase(): iterator not in range");
+    utility::LabContainersAssert(IteratorRangeCheck(iterator), "Undefined behaviour: List::Erase(): iterator not in range");
 #endif
     if (proxy_node_->head_ == position.current_) {
       proxy_node_->head_ = position.current_->next_;
@@ -534,9 +534,9 @@ class [[nodiscard]] List final {
   }
 
   [[nodiscard]] constexpr auto operator[](SizeType index) noexcept -> Reference {
-    LAB_CONTAINERS_ASSERT(proxy_node_, "Undefined behaviour: List::operator[]: called on list in moved-from state");
-    LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::operator[]: called on empty list");
-    LAB_CONTAINERS_ASSERT(index <= size_, "Undefined behaviour: List::operator[]: index out of range");
+    utility::LabContainersAssert(static_cast<bool>(proxy_node_), "Undefined behaviour: List::operator[]: called on list in moved-from state");
+    utility::LabContainersAssert(proxy_node_->head_, "Undefined behaviour: List::operator[]: called on empty list");
+    utility::LabContainersAssert(index <= size_, "Undefined behaviour: List::operator[]: index out of range");
     NodePointer traverser{proxy_node_->head_};
     while (index--) {
       traverser = traverser->next_;
@@ -545,11 +545,11 @@ class [[nodiscard]] List final {
   }
 
   [[nodiscard]] constexpr auto operator[](SizeType index) const noexcept -> ConstReference {
-    LAB_CONTAINERS_ASSERT(
-      proxy_node_, "Undefined behaviour: List::operator[] const: called on list in moved-from state"
+    utility::LabContainersAssert(
+      static_cast<bool>(proxy_node_), "Undefined behaviour: List::operator[] const: called on list in moved-from state"
     );
-    LAB_CONTAINERS_ASSERT(proxy_node_->head_, "Undefined behaviour: List::operator[] const: called on empty list");
-    LAB_CONTAINERS_ASSERT(index <= size_, "Undefined behaviour: List::operator[] const: index out of range");
+    utility::LabContainersAssert(proxy_node_->head_, "Undefined behaviour: List::operator[] const: called on empty list");
+    utility::LabContainersAssert(index <= size_, "Undefined behaviour: List::operator[] const: index out of range");
     NodePointer traverser{proxy_node_->head_};
     while (index--) {
       traverser = traverser->next_;
@@ -560,7 +560,7 @@ class [[nodiscard]] List final {
   [[nodiscard]] constexpr auto GetAllocator() const noexcept -> AllocatorType { return allocator_; }
 
   constexpr auto Swap(List& other) noexcept -> void {
-    LAB_CONTAINERS_ASSERT(this != &other, "Undefined behaviour: List::Swap(List&): self swap detected");
+    utility::LabContainersAssert(this != &other, "Undefined behaviour: List::Swap(List&): self swap detected");
     proxy_node_.swap(other.proxy_node_);
     if constexpr (AllocatorTraits::propagate_on_container_swap::value) {
       using std::swap;

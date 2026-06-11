@@ -231,3 +231,45 @@ jobs:
         with:
           path: ${{ env.CONAN_CONFIG_HOME }}
           key: conan-${{ runner.os }}-${{ github.run_id }}
+  test:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: 'read'
+    needs: [ 'config', 'build' ]
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.config.outputs.linux-runner-image }}
+            compiler: ${{ needs.config.outputs.linux-compiler }}
+          - os: ${{ needs.config.outputs.macos-runner-image }}
+            compiler: ${{ needs.config.outputs.macos-compiler }}
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+
+      - name: 'Setup C++ dependencies'
+        uses: 'aminya/setup-cpp@v1'
+        with:
+          compiler: ${{ matrix.compiler }}
+          cmake: true
+          conan: true
+
+      - name: 'Find conan directory'
+        run: echo "CONAN_CONFIG_HOME=$(conan config home)" >> $GITHUB_ENV
+
+      - name: 'Restore conan directories'
+        uses: 'actions/cache/restore@v5'
+        with:
+          path: ${{ env.CONAN_CONFIG_HOME }}
+          key: conan-${{ runner.os }}-${{ github.run_id }}
+
+      - name: 'Download build artifacts'
+        uses: 'actions/download-artifact@v4'
+        with:
+          name: build-archive-${{ runner.os }}-${{ github.run_id }}
+
+      - name: 'Unarchive build artifacts'
+        run: tar -xzf build-archive-${{ runner.os }}.tar.gz
+
+      - name: 'Run tests'
+        run: ctest --preset ${{ needs.config.outputs.conan-preset }}

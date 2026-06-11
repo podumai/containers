@@ -139,6 +139,7 @@ jobs:
       - name: 'Setup C++ dependencies'
         uses: 'aminya/setup-cpp@v1'
         with:
+          cmake: true
           compiler: ${{ needs.config.outputs.linux-compiler }}
           clang-tidy: true
           ninja: true
@@ -168,3 +169,65 @@ jobs:
         run: |
           echo "lint-cmake-trigger=${{ needs.lint-cmake.result }}"
           echo "lint-cpp-trigger=${{ needs.lint-cpp.result }}"
+
+
+  build:
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: 'read'
+    needs: [ 'config', 'lint-merge' ]
+    strategy:
+      matrix:
+        include:
+          - os: ${{ needs.config.outputs.linux-runner-image }}
+            compiler: ${{ needs.config.outputs.linux-compiler }}
+            conan-profile: ${{ needs.config.outputs.linux-conan-profile }}
+          - os: ${{ needs.config.outputs.macos-runner-image }}
+            compiler: ${{ needs.config.outputs.macos-compiler }}
+            conan-profile: ${{ needs.config.outputs.macos-conan-profile }}
+    steps:
+      - name: 'Clone the repository'
+        uses: 'actions/checkout@v6'
+
+      - name: 'Install project dependencies'
+        uses: 'aminya/setup-cpp@v1'
+        with:
+          compiler: ${{ matrix.compiler }}
+          cmake: true
+          ninja: true
+          conan: true
+
+      - name: 'Install dependencies'
+        run: conan install . --build=missing --profile:all=conan-profiles/${{ matrix.conan-profile }}
+
+      - name: 'Configure project'
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            cmake --preset ${{ needs.config.outputs.conan-preset }} -D CI_CD_RELEASE=ON
+          else
+            cmake --preset ${{ needs.config.outputs.conan-preset }}
+          fi
+
+      - name: 'Build project'
+        run: cmake --build --preset ${{ needs.config.outputs.conan-preset }}
+
+      - name: 'Archive complete build artifacts'
+        run: tar -czf build-archive-${{ runner.os }}.tar.gz CMakeUserPresets.json build
+
+      - name: 'Upload complete build archive'
+        uses: 'actions/upload-artifact@v4'
+        with:
+          name: build-archive-${{ runner.os }}-${{ github.run_id }}
+          path: build-archive-${{ runner.os }}.tar.gz
+          retention-days: 1
+          overwrite: true
+
+      - name: 'Find conan directory'
+        id: 'conan-config'
+        run: echo "CONAN_CONFIG_HOME=$(conan config home)" >> $GITHUB_ENV
+
+      - name: 'Cache conan directories'
+        uses: 'actions/cache@v5'
+        with:
+          path: ${{ env.CONAN_CONFIG_HOME }}
+          key: conan-${{ runner.os }}-${{ github.run_id }}

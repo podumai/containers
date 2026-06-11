@@ -61,7 +61,12 @@ class [[nodiscard]] ForwardListIteratorBase {
   constexpr ForwardListIteratorBase(NodePointer list_node) noexcept : current_{list_node} { }
 
  public:
+  constexpr ForwardListIteratorBase(ForwardListIteratorBase const&) noexcept = default;
+  constexpr ForwardListIteratorBase(ForwardListIteratorBase&&) noexcept = default;
   constexpr ~ForwardListIteratorBase() = default;
+
+  constexpr auto operator=(ForwardListIteratorBase const&) noexcept -> ForwardListIteratorBase& = default;
+  constexpr auto operator=(ForwardListIteratorBase&&) noexcept -> ForwardListIteratorBase& = default;
 
   constexpr auto operator->() const noexcept -> Pointer { return &current_->value_; }
 
@@ -74,7 +79,7 @@ class [[nodiscard]] ForwardListIteratorBase {
   }
 
   constexpr auto operator++(int) noexcept -> ForwardListIteratorBase {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       current_, "Undefined behaviour: ForwardListIteratorBase::operator++(int): nullptr dereference"
     );
     ForwardListIteratorBase previous{*this};
@@ -198,7 +203,7 @@ class [[nodiscard]] ForwardList {
   constexpr ~ForwardList() { Clear(); }
 
   constexpr auto operator=(ForwardList&& other) noexcept -> ForwardList& {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       this != &other, "Undefined behaviour: ForwardList::operator=(ForwardList&&): self move detected"
     );
     Clear();
@@ -210,7 +215,7 @@ class [[nodiscard]] ForwardList {
   }
 
   constexpr auto operator=(const ForwardList& other) -> ForwardList& {
-    LAB_CONTAINERS_ASSERT(
+    utility::LabContainersAssert(
       this != &other, "Undefined behaviour: ForwardList::operator=(const ForwardList&): self copy detected"
     );
     ForwardList{other}.Swap(*this);
@@ -383,7 +388,7 @@ class [[nodiscard]] ForwardList {
   [[nodiscard]] constexpr auto GetAllocator() const noexcept -> AllocatorType { return allocator_; }
 
   constexpr auto Swap(ForwardList& other) noexcept -> void {
-    LAB_CONTAINERS_ASSERT(this != &other, "Undefined behaviour: ForwardList::Swap(): self copy detected");
+    utility::LabContainersAssert(this != &other, "Undefined behaviour: ForwardList::Swap(): self copy detected");
     std::swap(head_, other.head_);
     if constexpr (AllocatorTraits::propagate_on_container_swap::value) {
       using std::swap;

@@ -144,7 +144,7 @@ jobs:
         run: >
           conan install .
           --build=missing
-          --profile:all=${{ needs.config.outputs.linux-conan-profile }}
+          --profile:all=conan-profiles/${{ needs.config.outputs.linux-conan-profile }}
           -s:a build_type=${{ needs.config.outupts.action-type }}
 
       - name: 'Configure project'

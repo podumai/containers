@@ -133,14 +133,15 @@ TEST_CASE("List: Empty method test") {
 
 TEST_CASE("List: Operator subscript test") {
   auto subscript_check = [] [[nodiscard]] (auto&& list) constexpr noexcept -> bool {
-    using SizeType = std::remove_reference_t<decltype(list)>::SizeType;
+    using SizeType = std::remove_cvref_t<decltype(list)>::SizeType;
 
     const auto list_size = list.Size();
     auto test_number = kTestNumbers.begin();
     for (auto i = SizeType{}; i < list_size; ++i) {
-      if (list[i] != *test_number++) {
+      if (list[i] != *test_number) {
         return false;
       }
+      std::advance(test_number, 1);
     }
     return true;
   };

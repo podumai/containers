@@ -113,7 +113,7 @@ jobs:
     permissions:
       contents: 'read'
     needs: [ 'config', 'find-changes' ]
-    if: needs.find-changes.outputs.cmake-changed == true
+    if: needs.find-changes.outputs.cmake-changed == 'true'
     steps:
       - name: 'Clone the repository'
         uses: 'actions/checkout@v6'
@@ -131,7 +131,7 @@ jobs:
     permissions:
       contents: 'read'
     needs: [ 'config', 'find-changes' ]
-    if: needs.find-changes.outputs.cpp-changed == true
+    if: needs.find-changes.outputs.cpp-changed == 'true'
     steps:
       - name: 'Clone the repository'
         uses: 'actions/checkout@v6'
